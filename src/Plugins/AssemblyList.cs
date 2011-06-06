@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,18 +15,23 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MyCraft;
+
+#endregion Header
 
 namespace OpenMC.Plugins.Types
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    using MyCraft;
+
     public class AssemblyList : System.Collections.CollectionBase
     {
-        //A Simple Home-brew class to hold some info about our Available Plugins
+        #region Methods
 
+        //A Simple Home-brew class to hold some info about our Available Plugins
         /// <summary>
         /// Add a Plugin to the collection of Available plugins
         /// </summary>
@@ -32,15 +39,6 @@ namespace OpenMC.Plugins.Types
         public void Add(PluginObject pluginToAdd)
         {
             this.List.Add(pluginToAdd);
-        }
-
-        /// <summary>
-        /// Remove a Plugin to the collection of Available plugins
-        /// </summary>
-        /// <param name="pluginToRemove">The Plugin to Remove</param>
-        public void Remove(PluginObject pluginToRemove)
-        {
-            this.List.Remove(pluginToRemove);
         }
 
         /// <summary>
@@ -64,6 +62,17 @@ namespace OpenMC.Plugins.Types
             }
             return toReturn;
         }
+
+        /// <summary>
+        /// Remove a Plugin to the collection of Available plugins
+        /// </summary>
+        /// <param name="pluginToRemove">The Plugin to Remove</param>
+        public void Remove(PluginObject pluginToRemove)
+        {
+            this.List.Remove(pluginToRemove);
+        }
+
+        #endregion Methods
     }
 
     /// <summary>
@@ -71,21 +80,31 @@ namespace OpenMC.Plugins.Types
     /// </summary>
     public class PluginObject
     {
-        //This is the actual AvailablePlugin object.. 
+        #region Fields
+
+        private string myAssemblyPath = "";
+
+        //This is the actual AvailablePlugin object..
         //Holds an instance of the plugin to access
         //ALso holds assembly path... not really necessary
         private IPlugin myInstance = null;
-        private string myAssemblyPath = "";
+
+        #endregion Fields
+
+        #region Properties
+
+        public string AssemblyPath
+        {
+            get { return myAssemblyPath; }
+            set { myAssemblyPath = value; }
+        }
 
         public IPlugin Instance
         {
             get { return myInstance; }
             set { myInstance = value; }
         }
-        public string AssemblyPath
-        {
-            get { return myAssemblyPath; }
-            set { myAssemblyPath = value; }
-        }
+
+        #endregion Properties
     }
 }

@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,21 +15,31 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.IO;
-using System.Reflection;
-using System.Collections.Generic;
 
-using OpenMC.Plugins;
-using MyCraft;
+#endregion Header
 
 namespace OpenMC.Plugins
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
+
+    using MyCraft;
+
+    using OpenMC.Plugins;
+
     public class PluginServices
     {
-        private PluginHost pluginHost = new PluginHost();
+        #region Fields
+
         private Types.AssemblyList AvailablePlugins = new Types.AssemblyList();
+        private PluginHost pluginHost = new PluginHost();
         private string PluginsPath = "./Plugins/";
+
+        #endregion Fields
+
+        #region Constructors
 
         public PluginServices()
         {
@@ -39,11 +51,19 @@ namespace OpenMC.Plugins
             }
         }
 
+        #endregion Constructors
+
+        #region Properties
+
         public Types.AssemblyList Plugins
         {
             get { return AvailablePlugins; }
             set { AvailablePlugins = value; }
         }
+
+        #endregion Properties
+
+        #region Methods
 
         public void FindPlugins()
         {
@@ -81,7 +101,7 @@ namespace OpenMC.Plugins
                 }
             }
         }
-            
+
         public void Unload(string AssemblyName)
         {
         }
@@ -96,5 +116,6 @@ namespace OpenMC.Plugins
             }
         }
 
+        #endregion Methods
     }
 }

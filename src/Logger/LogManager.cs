@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,28 +15,31 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenMC.Constants;
+
+#endregion Header
 
 namespace OpenMC.Logger
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    using OpenMC.Constants;
+
     public static class LogManager
     {
+        #region Fields
+
         static LogWorker _logger = new LogWorker();
 
-        public static void LogNotice(string str)
-        {
-            //if(SSettings.LoggingEnabled)
-                _logger.LogMessage(str);
-        }
+        #endregion Fields
 
-        public static void LogWarrning(string str)
+        #region Methods
+
+        public static void Dispose()
         {
-            //if (SSettings.LoggingEnabled)
-                _logger.LogWarrning(str);
+            _logger.Dispose();
         }
 
         public static void LogError(Exception ex)
@@ -43,14 +48,24 @@ namespace OpenMC.Logger
                 _logger.LogError(ex);
         }
 
+        public static void LogNotice(string str)
+        {
+            //if(SSettings.LoggingEnabled)
+                _logger.LogMessage(str);
+        }
+
         public static void LogScriptMessage(string str)
         {
             //if (SSettings.LoggingEnabled)
             _logger.LogScriptMessage(str);
         }
-        public static void Dispose()
+
+        public static void LogWarrning(string str)
         {
-            _logger.Dispose();
+            //if (SSettings.LoggingEnabled)
+                _logger.LogWarrning(str);
         }
+
+        #endregion Methods
     }
 }

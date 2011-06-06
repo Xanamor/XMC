@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,13 +15,20 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
+
+#endregion Header
+
 namespace OpenMC
 {
-	public static class BlockYeild
-	{
-		public static short[] YieldsItemList = new short[]{ 1,2,14,15,16,21,56,73,74,78,79,80 };
-	}
-}
+    using System;
+    using System.Collections.Generic;
 
+    public static class BlockYeild
+    {
+        #region Fields
+
+        public static short[] YieldsItemList = new short[]{ 1,2,14,15,16,21,56,73,74,78,79,80 };
+
+        #endregion Fields
+    }
+}

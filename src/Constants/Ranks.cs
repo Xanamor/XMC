@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,54 +15,74 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
 
-namespace OpenMC {
-	public enum Rank
-	{
-		Banned = -1,
-		Guest,
-		Janitor,
-		Operator,
-		Admin
-	}
+#endregion Header
 
-	public static class RankInfo
-	{
-		private static Dictionary<Rank, string> colors;
+namespace OpenMC
+{
+    using System;
+    using System.Collections.Generic;
 
-		public static string RankColor(Rank rank)
-		{
-			if (colors.ContainsKey(rank)) {
-				return colors[rank];
-			} else {
-				return Color.Black;
-			}
-		}
-        public static bool IsJanitor(Rank rank)
+    #region Enumerations
+
+    public enum Rank
+    {
+        Banned = -1,
+        Guest,
+        Janitor,
+        Operator,
+        Admin
+    }
+
+    #endregion Enumerations
+
+    public static class RankInfo
+    {
+        #region Fields
+
+        private static Dictionary<Rank, string> colors;
+
+        #endregion Fields
+
+        #region Constructors
+
+        static RankInfo()
         {
-            return (rank >= Rank.Janitor);
+            colors = new Dictionary<Rank, string>();
+            colors[Rank.Banned] = Color.Red;
+            colors[Rank.Guest] = Color.White;
+            colors[Rank.Janitor] = Color.Green;
+            colors[Rank.Operator] = Color.Yellow;
+            colors[Rank.Admin] = Color.Blue;
         }
-		public static bool IsOperator(Rank rank) 
-        {
-            return (rank >= Rank.Operator);
-        }
+
+        #endregion Constructors
+
+        #region Methods
 
         public static bool IsAdmin(Rank rank)
         {
             return (rank == Rank.Admin);
         }
 
-		static RankInfo()
-		{
-			colors = new Dictionary<Rank, string>();
-			colors[Rank.Banned] = Color.Red;
-			colors[Rank.Guest] = Color.White;
-			colors[Rank.Janitor] = Color.Green;
-			colors[Rank.Operator] = Color.Yellow;
-			colors[Rank.Admin] = Color.Blue;
-		}
+        public static bool IsJanitor(Rank rank)
+        {
+            return (rank >= Rank.Janitor);
+        }
+
+        public static bool IsOperator(Rank rank)
+        {
+            return (rank >= Rank.Operator);
+        }
+
+        public static string RankColor(Rank rank)
+        {
+            if (colors.ContainsKey(rank)) {
+                return colors[rank];
+            } else {
+                return Color.Black;
+            }
+        }
 
         public static string RankTitle(Rank rank)
         {
@@ -76,7 +98,9 @@ namespace OpenMC {
                 return Color.Yellow + "<Operator>";
             if (TitleLevel == 3)
                 return Color.Blue + "<Administrator>";
-            return "#RANK_NOT_FOUND#"; 
+            return "#RANK_NOT_FOUND#";
         }
-	}
+
+        #endregion Methods
+    }
 }

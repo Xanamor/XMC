@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,25 +15,53 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
+#endregion Header
 
 namespace MyCraft
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public interface IPlugin
     {
-        IPluginHost Host { get; set; }
+        #region Properties
 
-        string Name { get; }
-        string Description { get; }
-        string Author { get; }
-        string Version { get; }
+        string Author
+        {
+            get;
+        }
+
+        string Description
+        {
+            get;
+        }
+
+        IPluginHost Host
+        {
+            get; set;
+        }
+
+        string Name
+        {
+            get;
+        }
+
+        string Version
+        {
+            get;
+        }
+
+        #endregion Properties
+
+        #region Methods
+
+        void Dispose();
 
         void Initialize();
-        void Dispose();
-    }
 
-    
+        #endregion Methods
+    }
 }

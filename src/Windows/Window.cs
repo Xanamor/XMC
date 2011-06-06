@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,50 +15,77 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
+
+#endregion Header
 
 namespace OpenMC
 {
-	public abstract class Window
-	{
-		private static byte _NextID = 2;
-		protected List<Player> _Viewers;
-		
-		public byte ID;
-		public byte Type;
-		public string Title;
-		
-		public InventoryItem[] slots { get; protected set; }
-		
-		protected Window(byte type, string title) {
-			_Viewers = new List<Player>();
-			ID = _NextID;
-			if (++_NextID > 125) _NextID = 2;
-			
-			Type = type;
-			Title = title;
-		}
-		
-		virtual public void Open(Player player) {
-			_Viewers.Add(player);
-			player.OpenWindow(this);
-		}
-		
-		virtual public void Close(Player player) {
-			_Viewers.Remove(player);
-			if (_Viewers.Count == 0) {
-				OpenMC.Server.WindowList.Remove(this);
-			}
-		}
-		
-		public abstract bool Click(Player p, short slot, byte type, InventoryItem item);
-		
-		public void SetSlot(short slot, InventoryItem item) {
-			slots[slot] = item;
-			foreach (Player player in _Viewers) {
-				player.WindowSetSlot(this, slot, item);
-			}
-		}
-	}
+    using System;
+    using System.Collections.Generic;
+
+    public abstract class Window
+    {
+        #region Fields
+
+        public byte ID;
+        public string Title;
+        public byte Type;
+
+        protected List<Player> _Viewers;
+
+        private static byte _NextID = 2;
+
+        #endregion Fields
+
+        #region Constructors
+
+        protected Window(byte type, string title)
+        {
+            _Viewers = new List<Player>();
+            ID = _NextID;
+            if (++_NextID > 125) _NextID = 2;
+
+            Type = type;
+            Title = title;
+        }
+
+        #endregion Constructors
+
+        #region Properties
+
+        public InventoryItem[] slots
+        {
+            get; protected set;
+        }
+
+        #endregion Properties
+
+        #region Methods
+
+        public abstract bool Click(Player p, short slot, byte type, InventoryItem item);
+
+        public virtual void Close(Player player)
+        {
+            _Viewers.Remove(player);
+            if (_Viewers.Count == 0) {
+                OpenMC.Server.WindowList.Remove(this);
+            }
+        }
+
+        public virtual void Open(Player player)
+        {
+            _Viewers.Add(player);
+            player.OpenWindow(this);
+        }
+
+        public void SetSlot(short slot, InventoryItem item)
+        {
+            slots[slot] = item;
+            foreach (Player player in _Viewers) {
+                player.WindowSetSlot(this, slot, item);
+            }
+        }
+
+        #endregion Methods
+    }
 }

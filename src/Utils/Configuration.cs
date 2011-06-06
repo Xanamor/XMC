@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,103 +15,115 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.IO;
+
+#endregion Header
 
 namespace OpenMC
 {
-	public static class Configuration
-	{
-		private static Dictionary<string, string> _Config;
-		private const string _CONFIG_FILENAME = "configuration.cfg";
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
 
-		public static void Load()
-		{
-			_Config = new Dictionary<string, string>();
+    public static class Configuration
+    {
+        #region Fields
 
-			if (!File.Exists(_CONFIG_FILENAME)) {
-				OpenMC.LogWarrning("Generating " + _CONFIG_FILENAME);
-				WriteDefaultConfig();
-			}
-			
-			StreamReader input = new StreamReader(_CONFIG_FILENAME);
-			string raw = input.ReadToEnd();
-			raw = raw.Replace("\r\n", "\n"); // Just in case we have to deal with silly Windows/UNIX line-endings.
-			string[] lines = raw.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-			input.Close();
-			
-			foreach (var line in lines) {
-				if (line[0] == '#')
-					continue;
-				int pos = line.IndexOf("=");
-				string key = line.Substring(0, pos).Trim();
-				string val = line.Substring(pos + 1).Trim();
-				_Config[key] = val;
-				OpenMC.Log("Configing: " + key + "=" + val);
-			}
-		}
+        private const string _CONFIG_FILENAME = "configuration.cfg";
 
-		private static void WriteDefaultConfig()
-		{
-			StreamWriter fh = new StreamWriter(_CONFIG_FILENAME);
-			fh.WriteLine("# OpenMC default configuration file");
-			fh.WriteLine("# This file was auto-generated");
-			fh.WriteLine();
-            		fh.WriteLine("world = world");
-            		fh.WriteLine("listenAddr = 0.0.0.0");
-			fh.WriteLine("port = 25565");
-			fh.WriteLine("server-name = OpenMC Server");
-			fh.WriteLine("motd = Powered by " + Color.Blue + "OpenMC " + Constants.SSettings.InternalVersion);
-			fh.WriteLine("max-players = 8");
-			fh.WriteLine("verify-names = true");
-            	      /*fh.WriteLine("# MySql Configuration");
-            		fh.WriteLine("DBhost = 127.0.0.1");
-            		fh.WriteLine("Database = openmc");
-            		fh.WriteLine("User = root");
-            		fh.WriteLine("Password = none"); */
-			fh.Close();
-		}
+        private static Dictionary<string, string> _Config;
 
-		public static string Get(string key, string def)
-		{
+        #endregion Fields
+
+        #region Methods
+
+        public static bool Defined(string key)
+        {
+            return _Config.ContainsKey(key);
+        }
+
+        public static string Get(string key, string def)
+        {
             if (Defined(key))
                 return (_Config[key]);
             else
                 OpenMC.LogWarrning("Could not locate value in config file assuming default value for " + key);
-				return def;
-		}
+                return def;
+        }
 
-		public static bool GetBool(string key, bool def)
-		{
-			string val = Get(key, def.ToString());
-			return StrIsTrue(val);
-		}
+        public static bool GetBool(string key, bool def)
+        {
+            string val = Get(key, def.ToString());
+            return StrIsTrue(val);
+        }
 
-		public static int GetInt(string key, int def)
-		{
-			string val = Get(key, null);
-			if (val == null)
-				return def;
-			else
-				return Convert.ToInt32(val);
-		}
+        public static int GetInt(string key, int def)
+        {
+            string val = Get(key, null);
+            if (val == null)
+                return def;
+            else
+                return Convert.ToInt32(val);
+        }
 
-		public static bool Defined(string key)
-		{
-			return _Config.ContainsKey(key);
-		}
-		
-		// helpers
-		public static bool StrIsTrue(string val)
-		{
-			val = val.ToLower().Trim();
-			return (val == "1" || val == "yes" || val == "true" || val == "on");
-		}
-		
-		public static string OnOffStr(bool val)
-		{
-			return (val ? "On" : "Off");
-		}
-	}
+        public static void Load()
+        {
+            _Config = new Dictionary<string, string>();
+
+            if (!File.Exists(_CONFIG_FILENAME)) {
+                OpenMC.LogWarrning("Generating " + _CONFIG_FILENAME);
+                WriteDefaultConfig();
+            }
+
+            StreamReader input = new StreamReader(_CONFIG_FILENAME);
+            string raw = input.ReadToEnd();
+            raw = raw.Replace("\r\n", "\n"); // Just in case we have to deal with silly Windows/UNIX line-endings.
+            string[] lines = raw.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            input.Close();
+
+            foreach (var line in lines) {
+                if (line[0] == '#')
+                    continue;
+                int pos = line.IndexOf("=");
+                string key = line.Substring(0, pos).Trim();
+                string val = line.Substring(pos + 1).Trim();
+                _Config[key] = val;
+                OpenMC.Log("Configing: " + key + "=" + val);
+            }
+        }
+
+        public static string OnOffStr(bool val)
+        {
+            return (val ? "On" : "Off");
+        }
+
+        // helpers
+        public static bool StrIsTrue(string val)
+        {
+            val = val.ToLower().Trim();
+            return (val == "1" || val == "yes" || val == "true" || val == "on");
+        }
+
+        private static void WriteDefaultConfig()
+        {
+            StreamWriter fh = new StreamWriter(_CONFIG_FILENAME);
+            fh.WriteLine("# OpenMC default configuration file");
+            fh.WriteLine("# This file was auto-generated");
+            fh.WriteLine();
+                    fh.WriteLine("world = world");
+                    fh.WriteLine("listenAddr = 0.0.0.0");
+            fh.WriteLine("port = 25565");
+            fh.WriteLine("server-name = OpenMC Server");
+            fh.WriteLine("motd = Powered by " + Color.Blue + "OpenMC " + Constants.SSettings.InternalVersion);
+            fh.WriteLine("max-players = 8");
+            fh.WriteLine("verify-names = true");
+                      /*fh.WriteLine("# MySql Configuration");
+                    fh.WriteLine("DBhost = 127.0.0.1");
+                    fh.WriteLine("Database = openmc");
+                    fh.WriteLine("User = root");
+                    fh.WriteLine("Password = none"); */
+            fh.Close();
+        }
+
+        #endregion Methods
+    }
 }

@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,24 +15,33 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading;
+
+#endregion Header
 
 namespace OpenMC.Logger
 {
-    class LogWorker : IDisposable 
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using System.Threading;
+
+    class LogWorker : IDisposable
     {
+        #region Fields
+
         bool _disposed;
-        string _logFile;
         string _errorFile;
-        Thread _workingThread;
+        Queue<string> _errorQueue = new Queue<string>();
         object _lockObject = new object();
+        string _logFile;
         Queue<string> _messageQueue = new Queue<string>();
         Queue<string> _warrningQueue = new Queue<string>();
-        Queue<string> _errorQueue = new Queue<string>();
+        Thread _workingThread;
+
+        #endregion Fields
+
+        #region Constructors
 
         public LogWorker()
         {
@@ -44,40 +55,46 @@ namespace OpenMC.Logger
             _workingThread.Start();
         }
 
-        void WorkerThread()
+        #endregion Constructors
+
+        #region Methods
+
+        public void Dispose()
         {
-            while (!_disposed)
+            if (!_disposed)
             {
+                _disposed = true;
                 lock (_lockObject)
                 {
                     if (_errorQueue.Count > 0)
-                        WriteQueue(_errorFile, _errorQueue);
-                    if (_warrningQueue.Count > 0)
-                        WriteQueue(_logFile, _warrningQueue);
-                    if (_messageQueue.Count > 0)
-                        WriteQueue(_logFile, _messageQueue);
-                    Monitor.Wait(_lockObject, 500);
+                    {
+                        WriteQueue(_logFile, _errorQueue);
+                    }
+
+                    _messageQueue.Clear();
+                    Monitor.Pulse(_lockObject);
                 }
             }
         }
 
-        void WriteQueue(string path, Queue<string> cache)
+        public void LogError(Exception ex)
         {
-            FileStream fs = null;
-            try
+            StringBuilder SBuild = new StringBuilder();
+            Exception e = ex;
+
+            SBuild.AppendLine("----" + DateTime.Now + "----");
+
+            while (e != null)
             {
-                fs = new FileStream(path, FileMode.Append, FileAccess.Write);
-                while (cache.Count > 0)
-                {
-                    byte[] tmp = Encoding.Default.GetBytes(cache.Dequeue());
-                    fs.Write(tmp, 0, tmp.Length);
-                }
-                fs.Close();
-            } //catch {   }
-            finally
+                SBuild.AppendLine(getErrorText(e));
+                e = e.InnerException;
+            }
+
+            SBuild.AppendLine(new string('-', 25));
+            lock(_lockObject)
             {
-                if (fs != null)
-                    fs.Dispose();
+                _errorQueue.Enqueue(SBuild.ToString());
+                Monitor.Pulse(_lockObject);
             }
         }
 
@@ -129,26 +146,6 @@ namespace OpenMC.Logger
             }
             catch { }
         }
-        public void LogError(Exception ex)
-        {
-            StringBuilder SBuild = new StringBuilder();
-            Exception e = ex;
-
-            SBuild.AppendLine("----" + DateTime.Now + "----");
-
-            while (e != null)
-            {
-                SBuild.AppendLine(getErrorText(e));
-                e = e.InnerException;
-            }
-
-            SBuild.AppendLine(new string('-', 25));
-            lock(_lockObject)
-            {
-                _errorQueue.Enqueue(SBuild.ToString());
-                Monitor.Pulse(_lockObject);
-            }
-        }
 
         string getErrorText(Exception e)
         {
@@ -163,26 +160,44 @@ namespace OpenMC.Logger
             }
             return SBuild.ToString();
         }
-#region IDisposable Members
 
-        public void Dispose()
+        void WorkerThread()
         {
-            if (!_disposed)
+            while (!_disposed)
             {
-                _disposed = true;
                 lock (_lockObject)
                 {
                     if (_errorQueue.Count > 0)
-                    {
-                        WriteQueue(_logFile, _errorQueue);
-                    }
-
-                    _messageQueue.Clear();
-                    Monitor.Pulse(_lockObject);
+                        WriteQueue(_errorFile, _errorQueue);
+                    if (_warrningQueue.Count > 0)
+                        WriteQueue(_logFile, _warrningQueue);
+                    if (_messageQueue.Count > 0)
+                        WriteQueue(_logFile, _messageQueue);
+                    Monitor.Wait(_lockObject, 500);
                 }
             }
         }
 
-#endregion IDisposable Members
+        void WriteQueue(string path, Queue<string> cache)
+        {
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream(path, FileMode.Append, FileAccess.Write);
+                while (cache.Count > 0)
+                {
+                    byte[] tmp = Encoding.Default.GetBytes(cache.Dequeue());
+                    fs.Write(tmp, 0, tmp.Length);
+                }
+                fs.Close();
+            } //catch {   }
+            finally
+            {
+                if (fs != null)
+                    fs.Dispose();
+            }
+        }
+
+        #endregion Methods
     }
 }

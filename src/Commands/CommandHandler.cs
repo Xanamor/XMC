@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,28 +15,48 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
+#endregion Header
 
 namespace OpenMC
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public class CommandHandler
     {
+        #region Fields
+
         public Rank AccessRights;
-        public Player User;
-        public Player Target = null;
-        public InventoryItem Item;
-        private short BlockID;
-        private byte Count;
         public string Command;
         public int CommandLength;
+        public InventoryItem Item;
+        public Player Target = null;
+        public Player User;
+
+        private short BlockID;
+        private byte Count;
+
+        #endregion Fields
+
+        #region Constructors
 
         public CommandHandler(Rank accessRights, Player p)
         {
             this.AccessRights = accessRights;
             this.User = p;
+        }
+
+        #endregion Constructors
+
+        #region Methods
+
+        public object GetPlayerObject(string Username)
+        {
+            Player Target = OpenMC.Server.PlayerList.Find(delegate(Player p) { return p.Username == Username; });
+                return Target;
         }
 
         public void Handle(string[] command)
@@ -167,14 +189,6 @@ namespace OpenMC
             }
         }
 
-            #region Helper Methods
-
-            public object GetPlayerObject(string Username)
-            {
-                Player Target = OpenMC.Server.PlayerList.Find(delegate(Player p) { return p.Username == Username; });
-                return Target;
-            }
-
-            #endregion
-        }
+        #endregion Methods
     }
+}

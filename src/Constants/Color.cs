@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,34 +15,39 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
+
+#endregion Header
 
 namespace OpenMC
 {
-	public static class Color
-	{
-		public const string Signal = "\x00A7"; // section symbol §
-		
-		public const string Black = Signal + "0";
-		public const string DarkBlue = Signal + "1";
-		public const string DarkGreen = Signal + "2";
-		public const string DarkTeal = Signal + "3";
-		public const string DarkRed = Signal + "4";
-		public const string Purple = Signal + "5";
-		public const string DarkYellow = Signal + "6";
-		public const string Gray = Signal + "7";
-		public const string DarkGray = Signal + "8";
-		public const string Blue = Signal + "9";
-		public const string Green = Signal + "a";
-		public const string Teal = Signal + "b";
-		public const string Red = Signal + "c";
-		public const string Pink = Signal + "d";
-		public const string Yellow = Signal + "e";
-		public const string White = Signal + "f";
+    using System;
 
-		public const string Announce = Yellow;
-		public const string PrivateMsg = Purple;
-		public const string CommandResult = Teal;
-		public const string CommandError = DarkRed;
-	}
+    public static class Color
+    {
+        #region Fields
+
+        public const string Announce = Yellow;
+        public const string Black = Signal + "0";
+        public const string Blue = Signal + "9";
+        public const string CommandError = DarkRed;
+        public const string CommandResult = Teal;
+        public const string DarkBlue = Signal + "1";
+        public const string DarkGray = Signal + "8";
+        public const string DarkGreen = Signal + "2";
+        public const string DarkRed = Signal + "4";
+        public const string DarkTeal = Signal + "3";
+        public const string DarkYellow = Signal + "6";
+        public const string Gray = Signal + "7";
+        public const string Green = Signal + "a";
+        public const string Pink = Signal + "d";
+        public const string PrivateMsg = Purple;
+        public const string Purple = Signal + "5";
+        public const string Red = Signal + "c";
+        public const string Signal = "\x00A7"; // section symbol §
+        public const string Teal = Signal + "b";
+        public const string White = Signal + "f";
+        public const string Yellow = Signal + "e";
+
+        #endregion Fields
+    }
 }

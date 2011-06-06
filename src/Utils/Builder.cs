@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,33 +15,44 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion Header
+
 using System;
 using System.Collections.Generic;
 
-
 public class Builder<T>
 {
-	List<T> _contents = new List<T>();
+    #region Fields
 
-	public void Append(T param)
-	{
-		_contents.Add(param);
-	}
-	public void Append(T[] param)
-	{
-		foreach (var item in param)
-		{
-			_contents.Add(item);
-		}
-	}
+    List<T> _contents = new List<T>();
 
-	public T[] ToArray()
-	{
-		T[] returnValue = new T[_contents.Count];
-		for (int i = 0; i < _contents.Count; i++)
-		{
-			returnValue[i] = _contents[i];
-		}
-		return returnValue;
-	}
+    #endregion Fields
+
+    #region Methods
+
+    public void Append(T param)
+    {
+        _contents.Add(param);
+    }
+
+    public void Append(T[] param)
+    {
+        foreach (var item in param)
+        {
+            _contents.Add(item);
+        }
+    }
+
+    public T[] ToArray()
+    {
+        T[] returnValue = new T[_contents.Count];
+        for (int i = 0; i < _contents.Count; i++)
+        {
+            returnValue[i] = _contents[i];
+        }
+        return returnValue;
+    }
+
+    #endregion Methods
 }

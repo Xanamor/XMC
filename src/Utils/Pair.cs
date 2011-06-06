@@ -1,4 +1,6 @@
-﻿//    OpenMC, a Minecraft SMP server.
+﻿#region Header
+
+//    OpenMC, a Minecraft SMP server.
 //    Copyright (C) 2011 OpenMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -13,17 +15,38 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion Header
+
 using System;
 
-public class Pair<T, U> {
-    public Pair() {
+public class Pair<T, U>
+{
+    #region Constructors
+
+    public Pair()
+    {
     }
 
-    public Pair(T first, U second) {
+    public Pair(T first, U second)
+    {
         this.First = first;
         this.Second = second;
     }
 
-    public T First { get; set; }
-    public U Second { get; set; }
-};
+    #endregion Constructors
+
+    #region Properties
+
+    public T First
+    {
+        get; set;
+    }
+
+    public U Second
+    {
+        get; set;
+    }
+
+    #endregion Properties
+}
