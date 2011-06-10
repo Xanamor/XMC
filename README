@@ -1,2 +1,5 @@
-Imported from my old project, going to be rewriting most of the code base, need to add Events and redo the networking system
-only supports SMP packet version 1.4
+This is the rewrite of the current master branch, this branch is even more incomplete and unstable then the master.
+
+currently working:
+	*It starts up
+	*Prints dah pretty text
