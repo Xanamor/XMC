@@ -1,5 +1,0 @@
-C:\Users\Xinnx\Desktop\OpenMC\lib\MyCraft.dll
-C:\Users\Xinnx\Desktop\OpenMC\lib\MyCraft.pdb
-C:\Users\Xinnx\Desktop\OpenMC\src\MyCraft\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Xinnx\Desktop\OpenMC\src\MyCraft\obj\Debug\MyCraft.dll
-C:\Users\Xinnx\Desktop\OpenMC\src\MyCraft\obj\Debug\MyCraft.pdb
