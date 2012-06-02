@@ -45,24 +45,25 @@ namespace OpenMC
         private bool _Running;
         private Thread _Thread;
         private Queue<byte[]> _TransmitQueue;
-
+	private StringBuilder _StringBuilder;
         #endregion Fields
 
         #region Constructors
 
-        public Connection(TcpClient client, Player player)
-        {
-            _Client = client;
-            IPString = _Client.Client.RemoteEndPoint.ToString();
+        public Connection (TcpClient client, Player player)
+	{
+	    _Client = client;
+	    IPString = _Client.Client.RemoteEndPoint.ToString ();
 
-            _Running = true;
-            _TransmitQueue = new Queue<byte[]>();
-            _Buffer = new byte[0];
-            _Player = player;
+	    _Running = true;
+	    _TransmitQueue = new Queue<byte[]> ();
+	    _Buffer = new byte[0];
+	    _Player = player;
 
-            _Thread = new Thread(ConnectionThread);
-            _Thread.Name = "OMC-Player " + _Client.GetHashCode();
-            _Thread.Start();
+	    _Thread = new Thread (ConnectionThread);
+	    _Thread.Name = "OMC-Player " + _Client.GetHashCode ();
+	    _Thread.Start ();
+	    _StringBuilder = new StringBuilder ();
         }
 
         #endregion Constructors
@@ -89,7 +90,7 @@ namespace OpenMC
 
         public void SendChunk(Chunk chunk)
         {
-            Transmit(PacketType.PreChunk, chunk.ChunkX, chunk.ChunkZ, (sbyte) 1);
+            Transmit(PacketType.MapColumnAllocation, chunk.ChunkX, chunk.ChunkZ, (sbyte) 1);
 
             byte[] uncompressed = chunk.GetBytes();
             MemoryStream mem = new MemoryStream();
@@ -154,7 +155,7 @@ namespace OpenMC
                             break;
 
                         case 't':		// string
-                            bytes = Encoding.UTF8.GetBytes((string) args[i-1]);
+                            bytes = Encoding.Unicode.GetBytes((string)args[i-1]);
                             packet.Append(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short) bytes.Length)));
                             packet.Append(bytes);
                             break;
@@ -188,71 +189,98 @@ namespace OpenMC
             }
         }
 
-        private Pair<int, object[]> CheckCompletePacket()
-        {
-            Pair<int, object[]> nPair = new Pair<int, object[]>(0, null);
+        private Pair<int, object[]> CheckCompletePacket ()
+	{
+	    Pair<int, object[]> nPair = new Pair<int, object[]> (0, null);
 
-            PacketType type = (PacketType) _Buffer[0];
-            if (_Buffer[0] >= PacketStructure.Data.Length && _Buffer[0] != 0xFF) {
-                OpenMC.Log("Got invalid packet: " + _Buffer[0]);
-                return nPair;
-            }
+	    PacketType type = (PacketType)_Buffer [0];
+	    if (_Buffer [0] >= PacketStructure.Data.Length && _Buffer [0] != 0xFF) {
+		OpenMC.Log ("Got invalid packet: " + _Buffer [0]);
+		return nPair;
+	    }
 
-            string structure = (type == PacketType.Disconnect ? "bt" : PacketStructure.Data[_Buffer[0]]);
-            int bufPos = 0;
-            Builder<object> data = new Builder<object>();
-            byte[] bytes = new byte[8];
+	    string structure = (type == PacketType.Disconnect ? "bt" : PacketStructure.Data [_Buffer [0]]);
+	    int bufPos = 0;
+	    Builder<object> data = new Builder<object> ();
+	    byte[] bytes = new byte[8];
 
-            for (int i = 0; i < structure.Length; ++i) {
-                switch (structure[i]) {
-                    case 'b':		// sbyte(1)
-                        if ((bufPos + 1) > _Buffer.Length) return nPair;
-                        if (i == 0)
-                            data.Append((byte) _Buffer[bufPos]);
-                        else
-                            data.Append((sbyte) _Buffer[bufPos]);
-                        bufPos += 1;
-                        break;
+	    for (int i = 0; i < structure.Length; ++i) {
+		switch (structure [i]) {
+		case 'b':		// sbyte(1)
+		    if ((bufPos + 1) > _Buffer.Length)
+			return nPair;
+		    if (i == 0)
+			data.Append ((byte)_Buffer [bufPos]);
+		    else
+			data.Append ((sbyte)_Buffer [bufPos]);
+		    bufPos += 1;
+		    break;
 
-                    case 's':		// short(2)
-                        if ((bufPos + 2) > _Buffer.Length) return nPair;
-                        data.Append((short) IPAddress.NetworkToHostOrder(BitConverter.ToInt16(_Buffer, bufPos)));
-                        bufPos += 2;
-                        break;
+		case 's':		// short(2)
+		    if ((bufPos + 2) > _Buffer.Length)
+			return nPair;
+		    data.Append ((short)IPAddress.NetworkToHostOrder (BitConverter.ToInt16 (
+			_Buffer,
+			bufPos
+		    )
+		    )
+		    );
+		    bufPos += 2;
+		    break;
 
-                    case 'f':		// float(4)
-                        if ((bufPos + 4) > _Buffer.Length) return nPair;
-                        for (int j = 0; j < 4; ++j) {
-                            bytes[j] = _Buffer[bufPos + 3 - j];
-                        }
-                        data.Append((float) BitConverter.ToSingle(bytes, 0));
-                        bufPos += 4;
-                        break;
-                    case 'i':		// int(4)
-                        if ((bufPos + 4) > _Buffer.Length) return nPair;
-                        data.Append((int) IPAddress.NetworkToHostOrder(BitConverter.ToInt32(_Buffer, bufPos)));
-                        bufPos += 4;
-                        break;
+		case 'f':		// float(4)
+		    if ((bufPos + 4) > _Buffer.Length)
+			return nPair;
+		    for (int j = 0; j < 4; ++j) {
+			bytes [j] = _Buffer [bufPos + 3 - j];
+		    }
+		    data.Append ((float)BitConverter.ToSingle (bytes, 0));
+		    bufPos += 4;
+		    break;
+		case 'i':		// int(4)
+		    if ((bufPos + 4) > _Buffer.Length)
+			return nPair;
+		    data.Append ((int)IPAddress.NetworkToHostOrder (BitConverter.ToInt32 (
+			_Buffer,
+			bufPos
+		    )
+		    )
+		    );
+		    bufPos += 4;
+		    break;
 
-                    case 'd':		// double(8)
-                        if ((bufPos + 8) > _Buffer.Length) return nPair;
-                        for (int j = 0; j < 8; ++j) {
-                            bytes[j] = _Buffer[bufPos + 7 - j];
-                        }
-                        data.Append((double) BitConverter.ToDouble(bytes, 0));
-                        bufPos += 8;
-                        break;
-                    case 'l':		// long(8)
-                        if ((bufPos + 8) > _Buffer.Length) return nPair;
-                        data.Append((long) IPAddress.NetworkToHostOrder(BitConverter.ToInt64(_Buffer, bufPos)));
-                        bufPos += 8;
-                        break;
+		case 'd':		// double(8)
+		    if ((bufPos + 8) > _Buffer.Length)
+			return nPair;
+		    for (int j = 0; j < 8; ++j) {
+			bytes [j] = _Buffer [bufPos + 7 - j];
+		    }
+		    data.Append ((double)BitConverter.ToDouble (bytes, 0));
+		    bufPos += 8;
+		    break;
+		case 'l':		// long(8)
+		    if ((bufPos + 8) > _Buffer.Length)
+			return nPair;
+		    data.Append ((long)IPAddress.NetworkToHostOrder (BitConverter.ToInt64 (
+			_Buffer,
+			bufPos
+		    )
+		    )
+		    );
+		    bufPos += 8;
+		    break;
 
-                    case 't':		// string
-                        if ((bufPos + 2) > _Buffer.Length) return nPair;
-                        short len = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(_Buffer, bufPos));
-                        if ((bufPos + 2 + len) > _Buffer.Length) return nPair;
-                        data.Append((string) Encoding.UTF8.GetString(_Buffer, bufPos + 2, len));
+		case 't':		// string
+		    if ((bufPos + 2) > _Buffer.Length)
+			return nPair;
+		    short len = IPAddress.NetworkToHostOrder (BitConverter.ToInt16 (
+			_Buffer,
+			bufPos
+		    )
+		    );
+		    if ((bufPos + 2 + len) > _Buffer.Length)
+			return nPair;
+		    data.Append ((string)Encoding.Unicode.GetString(_Buffer, bufPos + 2, len));
                         bufPos += (2 + len);
                         break;
 
@@ -416,7 +444,7 @@ namespace OpenMC
                     break;
                 }
 
-                case PacketType.Message:
+                case PacketType.Chat:
                 {
                     _Player.RecvMessage ((string)packet[1]);
                     break;
@@ -632,7 +660,9 @@ namespace OpenMC
                     break;
                 }
 
-                case PacketType.CloseWindow: {
+		// N/A as of Inventory Overhaul
+
+               /* case PacketType.CloseWindow: {
                     sbyte id = (sbyte) packet[1];
                     if (id == 0) {
                         _Player.Inventory.Close(_Player);
@@ -645,7 +675,7 @@ namespace OpenMC
                         }
                     }
                     break;
-                }
+                }*/
 
                 case PacketType.PlayerHolding: {
                     _Player.SlotSelected = (int) (short) packet[1];

@@ -26,7 +26,7 @@ namespace OpenMC
     using System.Security.Cryptography;
     using System.Text;
 
-    using OpenMC.Logger;
+    using Logger;
 
     public static class OpenMC
     {

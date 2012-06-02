@@ -27,7 +27,7 @@ namespace OpenMC.Plugins
 
     using MyCraft;
 
-    using OpenMC.Plugins;
+    using Plugins;
 
     public class PluginServices
     {

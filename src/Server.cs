@@ -32,8 +32,8 @@ namespace OpenMC
     using System.Net.Sockets;
     using System.Threading;
 
-    using OpenMC.Constants;
-    using OpenMC.Plugins;
+    using Constants;
+    using Plugins;
 
     public class Server
     {

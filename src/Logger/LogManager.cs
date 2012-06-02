@@ -25,7 +25,7 @@ namespace OpenMC.Logger
     using System.Linq;
     using System.Text;
 
-    using OpenMC.Constants;
+    using Constants;
 
     public static class LogManager
     {

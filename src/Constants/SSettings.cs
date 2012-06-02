@@ -29,7 +29,7 @@ namespace OpenMC.Constants
         #region Fields
 
         public static bool checkUpdates = true;
-        public static string InternalVersion = "v 0.0.8a";
+        public static string InternalVersion = "v0.0.10";
         public static string ListenAddr = Configuration.Get("listenAddr","0.0.0.0");
         public static int ListenPort = Configuration.GetInt("port", 25565);
         public static bool LoggingEnabled = true;

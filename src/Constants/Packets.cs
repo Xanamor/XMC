@@ -26,65 +26,75 @@ namespace OpenMC
 
     public enum PacketType : byte
     {
-        KeepAlive = 0x00,           // c <-> s
-        LoginDetails = 0x01,        //   <->
-        Handshake = 0x02,           //   <->
-        Message = 0x03,             //   <->
-        TimeUpdate = 0x04,          //   <--
-        EntityEquipment = 0x05,     //   <->
-        SpawnPosition = 0x06,       //   <--
-        InteractEntity = 0x07,		//   -->
-        UpdateHealth = 0x08,		//   <--
-        Respawn = 0x09,				//   <->
-        Player = 0x0A,              //   -->
-        PlayerPosition = 0x0B,      //   -->
-        PlayerLook = 0x0C,          //   -->
-        PlayerPositionLook = 0x0D,  //   <->
-        PlayerDigging = 0x0E,       //   -->
-        PlayerBlockPlace = 0x0F,    //   -->
-        PlayerHolding = 0x10,       //   <->
-        PlayerUseBed  = 0x11,       //   <--
-        ArmAnimation = 0x12,        //   <->
-        EntityAction = 0x13,		//   <--
-        NamedEntitySpawn = 0x14,    //   <--
-        PickupSpawn = 0x15,         //   <->
-        CollectItem = 0x16,         //   <--
-        VehicleSpawn = 0x17,        //   <--
-        MobSpawn = 0x18,            //   <--
-        PaintingSpawn = 0x19,		//   <--
+        KeepAlive = 0x00,           
+        LoginDetails = 0x01,       
+        Handshake = 0x02,           
+        Chat = 0x03,             
+        TimeUpdate = 0x04,          
+        EntityEquipment = 0x05,     
+        SpawnPosition = 0x06,       
+        UseEntity = 0x07,		
+        UpdateHealth = 0x08,		
+        Respawn = 0x09,				
+        Player = 0x0A,              
+        PlayerPosition = 0x0B,      
+        PlayerLook = 0x0C,          
+        PlayerPositionLook = 0x0D,  
+        PlayerDigging = 0x0E,       
+        PlayerBlockPlace = 0x0F,    
+        PlayerHolding = 0x10,       
+        PlayerUseBed  = 0x11,       
+        ArmAnimation = 0x12,        
+        EntityAction = 0x13,		
+        NamedEntitySpawn = 0x14,    
+        SpawnDropedItem = 0x15,         
+        CollectItem = 0x16,         
+        VehicleSpawn = 0x17,        
+        MobSpawn = 0x18,            
+        PaintingSpawn = 0x19,		
+        SpawnExpOrb = 0x1A,
+        EntityVelocity = 0x1C,		
+        DestroyEntity = 0x1D,       
+        Entity = 0x1E,              
+        EntityRelativeMove = 0x1F,  
+        EntityLook = 0x20,         
+        EntityLookAndMove = 0x21,   
+        EntityTeleport = 0x22,      
+	EntityHeadLook = 0x23,
         // Unused space
-        Unk1B = 0x1B,               // Unk Usage
-        EntityVelocity = 0x1C,		//   <--
-        DestroyEntity = 0x1D,       //   <--
-        Entity = 0x1E,              //   <--
-        EntityRelativeMove = 0x1F,  //   <--
-        EntityLook = 0x20,          //   <--
-        EntityLookAndMove = 0x21,   //   <--
-        EntityTeleport = 0x22,      //   <--
+        EntityStatus = 0x26,		
+        AttachEntity = 0x27,		
+        EntityMetadata = 0x28,		
+        EntityEffect = 0x29,
+	RemoveEntityEffect = 0x2A,
+	SetExpOrb = 0x2B,
+        MapColumnAllocation = 0x32,            
+        MapChunk = 0x33,            
+        MultiBlockChange = 0x34,    
+        BlockChange = 0x35,         
+        BlockAction = 0x36,		
         // Unused space
-        EntityDamage = 0x26,		//   <--
-        AttachEntity = 0x27,		//   <--
-        EntityMetadata = 0x28,		//   <--
-        // Unused space
-        PreChunk = 0x32,            //   <--
-        MapChunk = 0x33,            //   <--
-        MultiBlockChange = 0x34,    //   <--
-        BlockChange = 0x35,         //   <--
-        PlayNoteBlock = 0x36,		//   <--
-        // Unused space
-        Explosion = 0x3C,			//   <--
-        // Unused space
-        OpenWindow = 0x64,			//   <--
-        CloseWindow = 0x65,			//   <--
-        WindowClick	= 0x66,			//   -->
-        WindowSetSlot = 0x67,		//   <--
-        WindowItems = 0x68,			//   <--
-        WindowProgress = 0x69,		//   <--
-        Transaction = 0x6A,			//   <--
-        // Unused space
-        UpdateSign = 0x82,			//   <->
-        // Unused space
-        Disconnect = 0xFF           //   <->
+        Explosion = 0x3C,		
+	SoundParticleEffect = 0x3D,
+	ChangeGameState = 0x46,
+	Thunderbolt = 0x47,
+        OpenWindow = 0x64,						
+        WindowClick	= 0x66,			
+        WindowSetSlot = 0x67,		
+        WindowItems = 0x68,			
+        WindowProgress = 0x69,		
+        Transaction = 0x6A,			
+        CreativeInventoryAction = 0x6B,
+	EnchantItem = 0x6C,
+        UpdateSign = 0x82,
+	ItemData = 0x83,
+	UpdateTileEntity = 0x84,
+	IncrementStatistic = 0xC8,
+	PlayerListItem = 0xC9,
+	PlayerAbilities = 0xCA,
+	PluginMessage = 0xFA,
+	ServerListPing = 0xFE,
+        Disconnect = 0xFF         
     }
 
     #endregion Enumerations
@@ -104,74 +114,154 @@ namespace OpenMC
         // M - entity metadata - special handling
         // I - inventory item - special handling (short; then if not -1: byte, short)
         public static string[] Data = {
-            "b",				// keep alive - 0x00
-            "bittlb",			// login request
-            "bt",				// handshake
-            "bt",				// chat message
-            "bl",				// time update
-            "bisss",			// entity equipment
-            "biii",				// spawn position
-            "biib",				// interact entity
-            "bs",				// update health
-            "b",				// respawn
-            "bb",				// player base
-            "bddddb",			// player position
-            "bffb",				// player look
-            "bddddffb",			// player position+look
-            "bbibib",			// player digging
-            "bibibI",			// player block place
-            "bs",				// player holding
-            "dddd",					// Unk1
-            "bib",				// arm animation
-            "bib",				// entity action
-            "bitiiibbs",		// named entity spawn
-            "bisbsiiibbb",		// pickup spawn
-            "bii",				// collect item
-            "bibiii",			// vehicle spawn
-            "bibiiibbM",		// mob spawn
-            "bisiiii",			// painting spawn
-            "",
-            "isbsiiibbb",		// Unk1B
-            "bisss",			// entity velocity
-            "bi",				// destroy entity
-            "bi",				// entity base
-            "bibbb",			// entity relative move
-            "bibb",				// entity look
-            "bibbbbb",			// entity look+move
-            "biiiibb",			// entity teleport
-            "", "", "", 		// unused space
-            "bssb",				// entity damage
-            "bii",				// attach entity
-            "biM",				// entity metadata
-            "", "", "", "",		// unused space
-            "", "", "", "", "", // unused space
-            "biib",				// prechunk
-            "bisibbbix",		// mapchunk
-            "biisxxx",			// multi-block change
-            "bibibb",			// block change
-            "bisibb",			// play note block
-            "", "", "", "", "",	// unused space
-            "bdddfib",			// explosion
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "",		// unused space
-            "bbbtb",			// open window
-            "bb",				// close window
-            "bbsbsI",			// window click
-            "bbsI",				// window slot
-            "bbsx",				// window items
-            "bbss",				// window progress
-            "bbsb",				// transaction
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "", "",
-            "", "", "", "",		// unused space
-            "bisitttt",			// update sign
+            "bi",			// keep alive - 0x00
+            "bitiibbb",			// login request - 0x01
+            "bt",			// handshake - 0x02
+            "bt",			// chat message 0x03
+            "bl",			// time update 0x04
+            "bisss",			// entity equipment 0x05
+            "biii",			// spawn position 0x06
+            "biib",			// interact entity 0x07
+            "bssf",			// update health 0x08
+            "bibbst",			// respawn 0x09
+            "bb",			// player base 0x0a
+            "bddddb",			// player position 0x0b
+            "bffb",			// player look 0x0c
+            "bddddffb",			// player position+look 0x0d
+            "bbibib",			// player digging 0x0e
+            "bibibI",			// player block place 0x0f
+            "bs",			// player holding 0x10
+            "bibibi",			// Use Bed 0x11
+            "bib",			// arm animation 0x12
+            "bib",			// entity action 0x13
+            "bitiiibbs",		// named entity spawn 0x14
+            "bisbsiiibbb",		// pickup spawn 0x15
+            "bii",			// collect item 0x16
+            "bibiiiisss",		// vehicle spawn 0x17
+            "bibiiibbbM",		// mob spawn 0x18
+            "bisiiii",			// painting spawn 0x19
+            "biiiis",			// Spawn Exp orb 0x1A
+            "",				// 0x1B
+            "bisss",			// entity velocity 0x1C
+            "bi",			// destroy entity 0x1D
+            "bi",			// entity base 0x1E
+            "bibbb",			// entity relative move 0x1F
+            "bibb",			// entity look 0x20
+            "bibbbbb",			// entity look+move 0x21
+            "biiiibb",			// entity teleport 0x22
+            "bib", 			// Entity Head Look 0x23
+            "", 			// Unused 0x24
+	    "", 			// Unused 0x25
+            "bib",			// entity status 0x26
+            "bii",			// attach entity 0x27
+            "biM",			// entity metadata 0x28
+            "bibbs", 			// entity effect 0x29
+	    "bib", 			// remove entity effect 0x2A
+	    "", 			// Set exp bar 0x2B
+	    "",		        	// 0x2C
+            "", 			// 0x2D
+	    "", 			// 0x2E
+	    "", 			// 0x2F
+	    "", 			// 0x30
+	    "",         		// 0x31
+            "biib",			// map column allocation 0x32
+            "biibssiix",		// mapchunk 0x33
+            "biisxxx",			// multi-block change 0x34
+            "bibibb",			// block change 0x35
+            "bisibb",			// block action 0x36
+            "", 			// 0x37
+	    "", 			// 0x38
+	    "",				// 0x39
+	    "",				// 0x3A
+	    "",				// 0x3B
+            "bdddfix",			// explosion 0x3C
+            "biibii", 			// Sound/Particle effect 0x3D
+	    "", 			// 0x3E
+	    "", 			// 0x3F
+	    "", 			// 0x40
+	    "",				// 0x41
+            "", 			// 0x42
+	    "", 			// 0x43
+	    "", 			// 0x44
+	    "", 			// 0x45
+	    "bbb",			// Change game state 0x46
+            "bibiii", 			// Thunderbolt 0x47
+	    "",				// 0x48
+	    "",				// 0x49
+	    "", 			// 0x4A
+	    "",				// 0x4B
+            "", 			// 0x4C
+	    "", 			// 0x4D
+	    "", 			// 0x4E
+	    "", 			// 0x4F
+	    "",				// 0x50
+            "", 			// 0x51
+	    "", 			// 0x52
+	    "", 			// 0x53
+	    "", 			// 0x54
+	    "",				// 0x55
+            "", 			// 0x56
+	    "", 			// 0x57
+	    "", 			// 0x58
+	    "", 			// 0x59
+	    "", 			// 0x5A
+	    "",				// 0x5B
+	    "", 			// 0x5C
+	    "", 			// 0x5D
+	    "",				// 0x5E
+            "", 			// 0x5F
+	    "",				// 0x60
+	    "",				// 0x61
+	    "",		   		// 0x62
+            "",				// 0x63  
+            "bbbtb",			// open window 0x64
+            "bb",			// close window 0x65
+            "bbsbsbI",			// click window 0x66
+            "bbsI",			// set slot 0x67
+            "bbsX",			// set Window items 0x68
+            "bbss", 			// Update Window Property 0x69
+	    "bbsb", 			// Confirm Transaction 0x6A
+	    "bsI", 			// Creative Inventory Action 0x6B
+	    "bbb", 			// Enchant Item 0x6C
+	    "",				// 0x6D
+            "", "", "", "", "",         // 0x6E -> 0x72
+            "", "", "", "", "",		// 0x73 -> 0x77
+            "", "", "", "", "",		// 0x78 -> 0x7C
+	    "", "", "", "", "",		// 0x7D -> 0x81
+            "bisitttt",			// update sign 0x82
+	    "bssbX",			// Item Data 0x83
+	    "bisibiii",			// Update Tile Entity 0x84
+	    "", "", "", "", "",		// 0x85 -> 0x89
+	    "", "", "", "", "",		// 0x8A -> 0x8E
+	    "", "", "", "", "",		// 0x8F -> 0x94
+	    "", "", "", "", "",		// 0x95 -> 0x99
+	    "", "", "", "", "",		// 0x9A -> 0x9E
+	    "", "", "", "", "",		// 0x9F -> 0xA4
+	    "", "", "", "", "",		// 0xA5 -> 0xA9
+	    "", "", "", "", "",		// 0xAA -> 0xAE
+	    "", "", "", "", "",		// 0xAF -> 0xB4
+	    "", "", "", "", "",		// 0xB5 -> 0xB9
+	    "", "", "", "", "",		// 0xBA -> 0xBE
+	    "", "", "", "", "",		// 0xBF -> 0xC4
+	    "", "", "", 		// 0xC5 -> 0xC7
+	    "bib", 			// Increment Statistic 0xC8
+	    "",				// Player List Item 0xC9
+	    "",				// Player Abilitys 0xCA
+	    "", "", "", "", "",		// 0xCB -> 0xCF
+	    "", "", "", "", "",		// 0xD0 -> 0xD4
+	    "", "", "", "", "",		// 0xD5 -> 0xD9
+	    "", "", "", "", "",		// 0xDA -> 0xDE
+	    "", "", "", "", "",		// 0xDF -> 0xE3
+	    "", "", "", "", "",		// 0xE4 -> 0xE8
+	    "", "", "", "", "",		// 0xE9 -> 0xED
+	    "", "", "", "", "",		// 0xEE -> 0xF2
+	    "", "", "", "", "",		// 0xF3 -> 0xF7
+	    "", "", 			// 0xF8, 0xF9
+	    "btsX", 			// Plugin Message 0xFA   
+	    "", "",			// 0xFB, 0xFC
+	    "", 			// 0xFD
+	    "",				// Server List Ping 0xFE -- Server Description + \x00A7 + Number Of Users + \x00A7 + Number of Slots
+	    "bt",			// Disconnect/Kick 0xFF
             // special handling for disconnect
         };
 

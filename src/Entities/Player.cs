@@ -89,7 +89,6 @@ namespace OpenMC
             Spawned = false;
             OpenMC.Server.Despawn(this);
             base.Despawn();
-                    //Clean the fucking PlayerList up, sick of working with disposed objects kthxbai
             OpenMC.Server.PlayerList.Remove(this);
         }
 
@@ -209,7 +208,7 @@ namespace OpenMC
 
         public void RecvServerMessage(string message)
         {
-            _Conn.Transmit(PacketType.Message, "<" + (Color.PrivateMsg + "SERVER" + Color.White) + "> " + message);
+            _Conn.Transmit(PacketType.Chat, "<" + (Color.PrivateMsg + "SERVER" + Color.White) + "> " + message);
         }
 
         public void SavePlayer()
@@ -262,7 +261,7 @@ namespace OpenMC
         //This is when you recive a message
         public void SendMessage(string message)
         {
-            _Conn.Transmit(PacketType.Message, message);
+            _Conn.Transmit(PacketType.Chat, message);
         }
 
         public void SetHolding(InventoryItem item)
@@ -299,7 +298,7 @@ namespace OpenMC
 
             //Send MOTD from SSettings and set things that need to be set after the player is in the game world
             ChatTag = (RankInfo.RankColor(AccessRights) + "<" + Username + ">") + Color.White + " ";
-            _Conn.Transmit(PacketType.Message, (Constants.SSettings.MOTD));
+            _Conn.Transmit(PacketType.Chat, (Constants.SSettings.MOTD));
         }
 
         public override string ToString()
@@ -320,7 +319,7 @@ namespace OpenMC
                 }
                 foreach (Chunk c in VisibleChunks) {
                     if (!newVisibleChunks.Contains(c)) {
-                        _Conn.Transmit(PacketType.PreChunk, c.ChunkX, c.ChunkZ, (sbyte) 0);
+                        _Conn.Transmit(PacketType.MapColumnAllocation, c.ChunkX, c.ChunkZ, (sbyte) 0);
                     }
                 }
                 foreach (Chunk c in newVisibleChunks) {
@@ -434,7 +433,7 @@ namespace OpenMC
                     p.Yaw, p.Pitch, (short) Block.Brick);
             } else if (e is PickupEntity) {
                 PickupEntity p = (PickupEntity) e;
-                _Conn.Transmit(PacketType.PickupSpawn, p.EntityID,
+                _Conn.Transmit(PacketType.Entity, p.EntityID,
                     p.Item.Type, (sbyte) p.Item.Count, p.Item.Damage,
                     (int)(p.X * 32), (int)(p.Y * 32), (int)(p.Z * 32),
                     p.Yaw, p.Pitch, (sbyte) 0);
