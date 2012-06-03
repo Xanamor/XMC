@@ -70,10 +70,6 @@ namespace OpenMC
 
         #region Methods
 
-        /* public void Disconnect(string message)
-        {
-            Transmit(PacketType.Disconnect, message);
-        } */
         public void Disconnect(string message)
         {
             _QuitMsg = message;
@@ -110,7 +106,7 @@ namespace OpenMC
 
         public void Transmit(PacketType type, params object[] args)
         {
-            // OpenMC.Log("Transmitting: " + type + "(" + (byte)type + ")");
+	    OpenMC.Log("Transmitting: " + type + "(" + (byte)type + ")");
             string structure = (type == PacketType.Disconnect ? "bt" : PacketStructure.Data[(byte) type]);
 
             Builder<Byte> packet = new Builder<Byte>();
@@ -155,8 +151,8 @@ namespace OpenMC
                             break;
 
                         case 't':		// string
-                            bytes = Encoding.Unicode.GetBytes((string)args[i-1]);
-                            packet.Append(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short) bytes.Length)));
+                            bytes = Encoding.BigEndianUnicode.GetBytes((string)args[i-1]);
+                            packet.Append(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)bytes.Length)));
                             packet.Append(bytes);
                             break;
 
@@ -280,7 +276,7 @@ namespace OpenMC
 		    );
 		    if ((bufPos + 2 + len) > _Buffer.Length)
 			return nPair;
-		    data.Append ((string)Encoding.Unicode.GetString(_Buffer, bufPos + 2, len));
+		    data.Append ((string)Encoding.BigEndianUnicode.GetString(_Buffer, bufPos + 2, len));
                         bufPos += (2 + len);
                         break;
 
@@ -404,14 +400,15 @@ namespace OpenMC
             }
         }
 
-        private void ProcessPacket(object[] packet)
-        {
-            PacketType type = (PacketType)(byte)packet[0];
-
-            switch (type) {
-            case PacketType.Handshake:
-                {
-                    _Player.Username = (string)packet[1];
+        private void ProcessPacket (object[] packet)
+	{
+	    PacketType type = (PacketType)(byte)packet [0];
+			OpenMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
+	    switch (type) {
+	    case PacketType.Handshake:
+		{
+		    string[] NameField = packet [1].ToString().Split ((char)';');
+		    _Player.Username = NameField [0];
                     Transmit (PacketType.Handshake, OpenMC.Server.ServerHash);
                     break;
                 }
@@ -435,9 +432,15 @@ namespace OpenMC
 
                     // TODO: Implement name verification
 
-                    Transmit (PacketType.LoginDetails, _Player.EntityID,
-                        OpenMC.Server.Name, OpenMC.Server.Motd,
-                        /* World.Seed */(long)0, 					/* World.Dimension */(sbyte)0);
+                    Transmit (PacketType.LoginDetails, 
+			_Player.EntityID,
+			"",	//Not Used
+			"default",	//Level Type
+			(int)1,		//Server Mode
+			(int)0,		//Dimension
+			(int)0,		//Difficulty
+   			(byte)0, 	//Not Used
+			(byte)2);	//Max Players
                     OpenMC.Log (_Player.Username + " (/" + IPString + ") has joined");
                     // TODO: Load Player Data from SaveFile
                     _Player.Spawn ();
