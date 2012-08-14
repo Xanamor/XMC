@@ -27,6 +27,7 @@ namespace OpenMC
     using System.Text;
 
     using Logger;
+    using Utils;
 
     public static class OpenMC
     {
@@ -37,6 +38,7 @@ namespace OpenMC
 
         public static Random Random;
         public static Server Server;
+	public static AesStream CryptStream;
 
         #endregion Fields
 
@@ -87,8 +89,7 @@ namespace OpenMC
 
         public static void Main(string[] args)
         {
-            Log ("OpenMC is starting...");
-
+			Log ("OpenMC is starting...");
             //TODO: Flat-File is for pussies, Need to implement MySql
             Configuration.Load();
 

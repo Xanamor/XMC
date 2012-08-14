@@ -386,9 +386,6 @@ namespace OpenMC
                 Pair<int, object[]> pair = CheckCompletePacket();
                 int length = pair.First;
                 if (length > 0) {
-                    //byte[] packet = new byte[length];
-                    //Array.Copy(_Buffer, packet, length);
-
                     byte[] newBuffer = new byte[_Buffer.Length - length];
                     Array.Copy(_Buffer, length, newBuffer, 0, _Buffer.Length - length);
                     _Buffer = newBuffer;
@@ -405,11 +402,20 @@ namespace OpenMC
 	    PacketType type = (PacketType)(byte)packet [0];
 			OpenMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
 	    switch (type) {
+	    case PacketType.EncryptionRequest:
+		{
+		   break;
+		}
 	    case PacketType.Handshake:
 		{
 		    string[] NameField = packet [1].ToString().Split ((char)';');
 		    _Player.Username = NameField [0];
-                    Transmit (PacketType.Handshake, OpenMC.Server.ServerHash);
+                    //Transmit (PacketType.Handshake, OpenMC.Server.ServerHash);
+		    OpenMC.LogWarrning(this._Player.EntityID + " started AES Handshake...");
+		    byte[] RandBytes = new byte[4];
+		    OpenMC.Random.NextBytes(RandBytes);
+		    OpenMC.Log("Sending Public key and 4 random bytes");
+		    Transmit (PacketType.EncryptionRequest,OpenMC.);
                     break;
                 }
             case PacketType.LoginDetails:
@@ -434,13 +440,12 @@ namespace OpenMC
 
                     Transmit (PacketType.LoginDetails, 
 			_Player.EntityID,
-			"",	//Not Used
 			"default",	//Level Type
-			(int)1,		//Server Mode
-			(int)0,		//Dimension
-			(int)0,		//Difficulty
+			(sbyte)1,	//Game Mode
+			(sbyte)0,	//Dimension
+			(sbyte)0,	//Difficulty
    			(byte)0, 	//Not Used
-			(byte)2);	//Max Players
+			(byte)8);	//Max Players
                     OpenMC.Log (_Player.Username + " (/" + IPString + ") has joined");
                     // TODO: Load Player Data from SaveFile
                     _Player.Spawn ();

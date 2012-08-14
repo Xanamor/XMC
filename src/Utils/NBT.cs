@@ -19,6 +19,7 @@
 #endregion Header
 
 //TODO: Update to MC +1.3 NBT format
+//TODO: REWRITE EVERYTHING!!!!!
 namespace NBT
 {
     using System;

@@ -55,7 +55,7 @@ namespace OpenMC
         {
             _Conn = new Connection(client, this);
             Username = "";
-                    AccessRights = GetRights();
+            AccessRights = GetRights();
             Spawned = false;
             CurrentChunk = null;
             VisibleChunks = new List<Chunk>();

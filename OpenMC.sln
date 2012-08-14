@@ -26,7 +26,10 @@ Global
 		Policies = $1
 		$1.StandardHeader = $2
 		$2.Text = 
-		$2.inheritsSet = Apache2License
+		$2.IncludeInNewFiles = True
+		$1.DotNetNamingPolicy = $3
+		$3.DirectoryNamespaceAssociation = Hierarchical
+		$3.ResourceNamePolicy = FileFormatDefault
 		outputpath = bin
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

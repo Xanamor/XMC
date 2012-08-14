@@ -93,6 +93,8 @@ namespace OpenMC
 	PlayerListItem = 0xC9,
 	PlayerAbilities = 0xCA,
 	PluginMessage = 0xFA,
+	EncryptionResponse = 0xFC,
+	EncryptionRequest = 0xFD,
 	ServerListPing = 0xFE,
         Disconnect = 0xFF         
     }
