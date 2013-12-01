@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -106,7 +106,7 @@ namespace OpenMC
 
         public void Transmit(PacketType type, params object[] args)
         {
-	    OpenMC.Log("Transmitting: " + type + "(" + (byte)type + ")");
+	    XMC.Log("Transmitting: " + type + "(" + (byte)type + ")");
             string structure = (type == PacketType.Disconnect ? "bt" : PacketStructure.Data[(byte) type]);
 
             Builder<Byte> packet = new Builder<Byte>();
@@ -176,7 +176,7 @@ namespace OpenMC
                 }
             }
             catch (InvalidCastException) {
-                OpenMC.Log("[Error] Transmitting " + type + ": expected '" + structure[current] +
+                XMC.Log("[Error] Transmitting " + type + ": expected '" + structure[current] +
                     "', got " + args[current - 1].GetType().ToString() + " for argument " + current + " (format: " + structure + ")");
                 throw;
             }
@@ -191,7 +191,7 @@ namespace OpenMC
 
 	    PacketType type = (PacketType)_Buffer [0];
 	    if (_Buffer [0] >= PacketStructure.Data.Length && _Buffer [0] != 0xFF) {
-		OpenMC.Log ("Got invalid packet: " + _Buffer [0]);
+		XMC.Log ("Got invalid packet: " + _Buffer [0]);
 		return nPair;
 	    }
 
@@ -344,15 +344,15 @@ namespace OpenMC
                         Disconnect("Server error: " + e.Message);
                     }
                     catch(Exception) {}
-                    OpenMC.LogError(e);
+                    XMC.LogError(e);
                     _Running = false;
                 }
             }
             if (_Player.Spawned) {
-                OpenMC.Log(_Player.Username + " has left (" + _QuitMsg + ")");
+                XMC.Log(_Player.Username + " has left (" + _QuitMsg + ")");
                 _Player.Despawn();
             } else {
-                OpenMC.Log("/" + IPString + " disconnected (" + _QuitMsg + ")");
+                XMC.Log("/" + IPString + " disconnected (" + _QuitMsg + ")");
             }
         }
 
@@ -400,7 +400,7 @@ namespace OpenMC
         private void ProcessPacket (object[] packet)
 	{
 	    PacketType type = (PacketType)(byte)packet [0];
-			OpenMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
+			XMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
 	    switch (type) {
 	    case PacketType.EncryptionRequest:
 		{
@@ -410,20 +410,20 @@ namespace OpenMC
 		{
 		    string[] NameField = packet [1].ToString().Split ((char)';');
 		    _Player.Username = NameField [0];
-                    //Transmit (PacketType.Handshake, OpenMC.Server.ServerHash);
-		    OpenMC.LogWarrning(this._Player.EntityID + " started AES Handshake...");
+                    //Transmit (PacketType.Handshake, XMC.Server.ServerHash);
+		    XMC.LogWarrning(this._Player.EntityID + " started AES Handshake...");
 		    byte[] RandBytes = new byte[4];
-		    OpenMC.Random.NextBytes(RandBytes);
-		    OpenMC.Log("Sending Public key and 4 random bytes");
-		    Transmit (PacketType.EncryptionRequest,OpenMC.);
+		    XMC.Random.NextBytes(RandBytes);
+		    XMC.Log("Sending Public key and 4 random bytes");
+		    Transmit (PacketType.EncryptionRequest,XMC.);
                     break;
                 }
             case PacketType.LoginDetails:
                 {
                     int protocol = (int)packet[1];
-                    if (protocol != OpenMC.ProtocolVersion) {
-                        OpenMC.Log ("Expecting protocol v" + OpenMC.ProtocolVersion + ", got v" + (int)packet[1]);
-                        if (protocol > OpenMC.ProtocolVersion) {
+                    if (protocol != XMC.ProtocolVersion) {
+                        XMC.Log ("Expecting protocol v" + XMC.ProtocolVersion + ", got v" + (int)packet[1]);
+                        if (protocol > XMC.ProtocolVersion) {
                             Disconnect ("Outdated server!");
                         } else {
                             Disconnect ("Outdated client!");
@@ -431,7 +431,7 @@ namespace OpenMC
                         break;
                     }
                     if ((string)packet[2] != _Player.Username) {
-                        OpenMC.Log ("Usernames did not match: Handshake=" + _Player.Username + ", Login=" + (string)packet[2]);
+                        XMC.Log ("Usernames did not match: Handshake=" + _Player.Username + ", Login=" + (string)packet[2]);
                         Disconnect ("Usernames did not match");
                         break;
                     }
@@ -446,7 +446,7 @@ namespace OpenMC
 			(sbyte)0,	//Difficulty
    			(byte)0, 	//Not Used
 			(byte)8);	//Max Players
-                    OpenMC.Log (_Player.Username + " (/" + IPString + ") has joined");
+                    XMC.Log (_Player.Username + " (/" + IPString + ") has joined");
                     // TODO: Load Player Data from SaveFile
                     _Player.Spawn ();
                     break;
@@ -509,7 +509,7 @@ namespace OpenMC
                     if (status == 0)
                         break;
 
-                    Chunk c = OpenMC.Server.World.GetChunkAt (x, z);
+                    Chunk c = XMC.Server.World.GetChunkAt (x, z);
                     Pair<int, int> pos = c.GetChunkPos (x, z);
                     Block b = c.GetBlock (pos.First, y, pos.Second);
 
@@ -531,51 +531,51 @@ namespace OpenMC
                             {
                             case Block.Stone:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Block.Cobblestone));
                                 break;
                             case Block.Grass:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Block.Dirt));
                                 break;
                             case Block.GoldOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Item.Gold));
                                 break;
                             case Block.IronOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Item.Iron));
                                 break;
                             case Block.CoalOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Item.Coal));
                                 break;
                             case Block.LapisOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Item.Dye, (short)Metadata.Dyes.LapisLazuli));
                                 break;
                             case Block.DiamondOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 new PickupEntity (x, y, z, new InventoryItem ((short)Item.Diamond));
                                 break;
                             case Block.RedstoneOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
-                                for (int i = 0; i < (OpenMC.Random.Next (6) + 2); i++)
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
+                                for (int i = 0; i < (XMC.Random.Next (6) + 2); i++)
                                     new PickupEntity (x, y, z, new InventoryItem ((short)Item.Redstone));
 
                                 break;
                             case Block.GlowingRedstoneOre:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
 
-                                for (int i = 0; i < (OpenMC.Random.Next (6) + 2); i++)
+                                for (int i = 0; i < (XMC.Random.Next (6) + 2); i++)
                                     new PickupEntity (x, y, z, new InventoryItem ((short)Item.Redstone));
 
                                 break;
@@ -583,16 +583,16 @@ namespace OpenMC
                             //FIXME: Causes client to recive n+1 Snowballs for each SnowSurface , Disabled for now
                             case Block.SnowSurface:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 //new PickupEntity (x, y, z, new InventoryItem ((short)Item.Snowball,1,0));
                                 break;
                             case Block.Ice:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 break;
                             case Block.SnowBlock:
                                 c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged (x, y, z, Block.Air);
+                                XMC.Server.BlockChanged (x, y, z, Block.Air);
                                 for (int i = 0; i < 4; i++)
                                     new PickupEntity (x, y, z, new InventoryItem ((short)Item.Snowball));
                                 break;
@@ -600,7 +600,7 @@ namespace OpenMC
                             //should NEVER get here normaly
                             default:
                                 c.SetBlock(pos.First, y, pos.Second, Block.Air);
-                                OpenMC.Server.BlockChanged(x, y, z, Block.Air);
+                                XMC.Server.BlockChanged(x, y, z, Block.Air);
                                 new PickupEntity(x, y, z, new InventoryItem((short) b));
                                 break;
                             }
@@ -608,7 +608,7 @@ namespace OpenMC
                         else
                         {
                             c.SetBlock(pos.First, y, pos.Second, Block.Air);
-                            OpenMC.Server.BlockChanged(x, y, z, Block.Air);
+                            XMC.Server.BlockChanged(x, y, z, Block.Air);
                             new PickupEntity(x, y, z, new InventoryItem((short) b));
                         }
 
@@ -629,10 +629,10 @@ namespace OpenMC
                     if (block.Type != i.Type) break;
                     if (i.Type <= 0 || i.Type >= 256) break;
 
-                    Chunk c = OpenMC.Server.World.GetChunkAt(x, z);
+                    Chunk c = XMC.Server.World.GetChunkAt(x, z);
                     Pair<int, int> pos = c.GetChunkPos(x, z);
                     c.SetBlock(pos.First, y, pos.Second, (Block) i.Type);
-                    OpenMC.Server.BlockChanged(x, y, z, (Block) i.Type);
+                    XMC.Server.BlockChanged(x, y, z, (Block) i.Type);
 
                     if (--i.Count == 0) {
                         i.Type = -1;
@@ -656,7 +656,7 @@ namespace OpenMC
                     if (id == 0) {
                         success = _Player.Inventory.Click(_Player, slot, rclick, item);
                     } else {
-                        foreach (Window w in OpenMC.Server.WindowList) {
+                        foreach (Window w in XMC.Server.WindowList) {
                             if (w.ID == (byte) id) {
                                 success = w.Click(_Player, slot, rclick, item);
                                 break;
@@ -675,7 +675,7 @@ namespace OpenMC
                     if (id == 0) {
                         _Player.Inventory.Close(_Player);
                     } else {
-                        foreach (Window w in OpenMC.Server.WindowList) {
+                        foreach (Window w in XMC.Server.WindowList) {
                             if (w.ID == (byte) id) {
                                 w.Close(_Player);
                                 break;
@@ -691,7 +691,7 @@ namespace OpenMC
                 }
 
                 default: {
-                    OpenMC.Log("[Packet] " + _Player.Username + " sent unimplemented packet " + type);
+                    XMC.Log("[Packet] " + _Player.Username + " sent unimplemented packet " + type);
                     break;
                 }
             }

@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
 
@@ -60,10 +60,10 @@ namespace OpenMC
                 Y -= 0.2;
             }
             base.Update();
-            foreach (Player p in OpenMC.Server.PlayerList) {
+            foreach (Player p in XMC.Server.PlayerList) {
                 if (Math.Abs(p.X - X) < 1 && Math.Abs(p.Z - Z) < 1 && Y <= p.Y + 2 && Y >= p.Y) {
                     if (p.Inventory.AddItem(Item)) {
-                        foreach (Player p2 in OpenMC.Server.PlayerList) {
+                        foreach (Player p2 in XMC.Server.PlayerList) {
                             if (p2.VisibleEntities.Contains(this)) p2.PickupCollected(this, p);
                         }
                         Despawn();

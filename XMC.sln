@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMC", "src\XMC.csproj", "{69AAE249-40F4-4017-BB73-88BBCD35A3B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69AAE249-40F4-4017-BB73-88BBCD35A3B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69AAE249-40F4-4017-BB73-88BBCD35A3B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69AAE249-40F4-4017-BB73-88BBCD35A3B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69AAE249-40F4-4017-BB73-88BBCD35A3B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItems = $0
+		$0.Item = src\OpenMC.csproj
+		Policies = $1
+		$1.StandardHeader = $2
+		$2.Text = 
+		$2.IncludeInNewFiles = True
+		$1.DotNetNamingPolicy = $3
+		$3.DirectoryNamespaceAssociation = Hierarchical
+		$3.ResourceNamePolicy = FileFormatDefault
+		outputpath = bin
+	EndGlobalSection
+EndGlobal

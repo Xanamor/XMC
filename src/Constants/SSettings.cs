@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC.Constants
+namespace XMC.Constants
 {
     using System;
     using System.Collections.Generic;
@@ -34,8 +34,8 @@ namespace OpenMC.Constants
         public static int ListenPort = Configuration.GetInt("port", 25565);
         public static bool LoggingEnabled = true;
         public static int MaxPlayers = Configuration.GetInt("max-players", 8);
-        public static string MOTD = Configuration.Get("motd", "Powered by " + Color.Blue + "OpenMC");
-        public static string MySQLDatabaseName = Configuration.Get("Database","openmc");
+        public static string MOTD = Configuration.Get("motd", "Powered by " + Color.Blue + "XMC");
+        public static string MySQLDatabaseName = Configuration.Get("Database","XMC");
         public static string MySQLHost = Configuration.Get("DBhost","127.0.0.1");
         public static string MySQLPassword = Configuration.Get("Password","");
         public static string MySQLUsername = Configuration.Get("User","root");

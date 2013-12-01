@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace OpenMC.Utils
+namespace XMC.Utils
 {
     public class AesStream : Stream
     {

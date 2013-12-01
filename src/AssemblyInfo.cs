@@ -4,8 +4,8 @@
 // if desired. See the Mono documentation for more information about signing.
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ using System.Runtime.CompilerServices;
 
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
-[assembly: AssemblyTitle("OpenMC")]
-[assembly: AssemblyDescription("OpenMC")]
+[assembly: AssemblyTitle("XMC")]
+[assembly: AssemblyDescription("XMC")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Final Protocol")]
 [assembly: AssemblyProduct("")]

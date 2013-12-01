@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 //#pragma warning disable 219
 //disable CS0168: variable X is declared but never used
 //#pragma warning disable 168
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -33,7 +33,8 @@ namespace OpenMC
     using System.Threading;
 	
     using Constants;
-    using Plugins;
+    //using Plugins;
+    //TODO: Rework Plugins, untill then I have removed the plugin system. --Xinnx009@gmail.com
     using Utils;
     public class Server
     {
@@ -115,13 +116,13 @@ namespace OpenMC
             World.Time = 0;
 
             Plugins = new PluginServices();
-            OpenMC.ScriptLog("Loading Plugins");
+            XMC.ScriptLog("Loading Plugins");
             Plugins.FindPlugins();
-            OpenMC.ScriptLog("Loaded " + Plugins.Plugins.Count + " Plugins");
+            XMC.ScriptLog("Loaded " + Plugins.Plugins.Count + " Plugins");
 
             if (!File.Exists(WorldName + "/level.dat"))
             {
-            OpenMC.Log("Generating world " + WorldName);
+            XMC.Log("Generating world " + WorldName);
             World.Generate();
             World.ForceSave();
             }
@@ -131,7 +132,7 @@ namespace OpenMC
                 Directory.CreateDirectory(SSettings.PlayerSavePath);
             }
             _Listener.Start();
-            OpenMC.Log("Listening on port " + Port);
+            XMC.Log("Listening on port " + Port);
             titleMonitor.Start();
             Running = true;
 
@@ -178,7 +179,7 @@ namespace OpenMC
         {
             foreach (Player p in PlayerList)
             {
-            OpenMC.Log("Saving all players...");
+            XMC.Log("Saving all players...");
             p.SavePlayer();
             }
         }
@@ -196,14 +197,14 @@ namespace OpenMC
             cpuCounter.InstanceName = "_Total";
 
             var startTime = DateTime.Now;
-            while (OpenMC.Server.Running)
+            while (XMC.Server.Running)
             {
             try
             {
             Thread.Sleep(2000);
 
             Console.Title =
-                "OpenMC || CPU: " + (cpuCounter.NextValue() + "%") +
+                "XMC || CPU: " + (cpuCounter.NextValue() + "%") +
                 " || Memory: " + (GC.GetTotalMemory(false) / 1024) + "KB" + "]";
             }
             catch (Exception ex) { Console.WriteLine(ex); }

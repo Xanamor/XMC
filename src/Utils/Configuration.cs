@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -46,7 +46,7 @@ namespace OpenMC
             if (Defined(key))
                 return (_Config[key]);
             else
-                OpenMC.LogWarrning("Could not locate value in config file assuming default value for " + key);
+                XMC.LogWarrning("Could not locate value in config file assuming default value for " + key);
                 return def;
         }
 
@@ -70,7 +70,7 @@ namespace OpenMC
             _Config = new Dictionary<string, string>();
 
             if (!File.Exists(_CONFIG_FILENAME)) {
-                OpenMC.LogWarrning("Generating " + _CONFIG_FILENAME);
+                XMC.LogWarrning("Generating " + _CONFIG_FILENAME);
                 WriteDefaultConfig();
             }
 
@@ -87,7 +87,7 @@ namespace OpenMC
                 string key = line.Substring(0, pos).Trim();
                 string val = line.Substring(pos + 1).Trim();
                 _Config[key] = val;
-                OpenMC.Log("Configing: " + key + "=" + val);
+                XMC.Log("Configing: " + key + "=" + val);
             }
         }
 
@@ -106,19 +106,19 @@ namespace OpenMC
         private static void WriteDefaultConfig()
         {
             StreamWriter fh = new StreamWriter(_CONFIG_FILENAME);
-            fh.WriteLine("# OpenMC default configuration file");
+            fh.WriteLine("# XMC default configuration file");
             fh.WriteLine("# This file was auto-generated");
             fh.WriteLine();
                     fh.WriteLine("world = world");
                     fh.WriteLine("listenAddr = 0.0.0.0");
             fh.WriteLine("port = 25565");
-            fh.WriteLine("server-name = OpenMC Server");
-            fh.WriteLine("motd = Powered by " + Color.Blue + "OpenMC " + Constants.SSettings.InternalVersion);
+            fh.WriteLine("server-name = XMC Server");
+            fh.WriteLine("motd = Powered by " + Color.Blue + "XMC " + Constants.SSettings.InternalVersion);
             fh.WriteLine("max-players = 8");
             fh.WriteLine("verify-names = true");
                       /*fh.WriteLine("# MySql Configuration");
                     fh.WriteLine("DBhost = 127.0.0.1");
-                    fh.WriteLine("Database = openmc");
+                    fh.WriteLine("Database = XMC");
                     fh.WriteLine("User = root");
                     fh.WriteLine("Password = none"); */
             fh.Close();

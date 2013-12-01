@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -50,19 +50,19 @@ namespace OpenMC
             if (!Directory.Exists (Name))
                 Directory.CreateDirectory (Name);
             if (File.Exists(Name + "/level.dat"))
-                OpenMC.Log("Found level.dat, Parsing...");
+                XMC.Log("Found level.dat, Parsing...");
             else {
 
                 FileStream rawWriter = null;
                 GZipStream Writer = null;
                 LevelDat NbtData;
 
-                OpenMC.LogWarrning("Could not find level.dat, assuming this is a new world");
+                XMC.LogWarrning("Could not find level.dat, assuming this is a new world");
                 while(rawWriter == null)
                 {
                     try {
                        rawWriter = new FileStream (Name + "/level.dat", FileMode.OpenOrCreate);
-                    } catch {OpenMC.LogWarrning("Waiting for file to close..."); }
+                    } catch {XMC.LogWarrning("Waiting for file to close..."); }
 
                     //Give the computer a bit of time to close the files
                     //HACK: Need to put in Async FileIO system
@@ -73,13 +73,13 @@ namespace OpenMC
 
                 NbtData.Time = 0;
                 NbtData.LastPlayed = 0;
-                NbtData.SpawnX = OpenMC.Random.Next(-300,300);
+                NbtData.SpawnX = XMC.Random.Next(-300,300);
                 NbtData.SpawnY = 64;
-                NbtData.SpawnZ = OpenMC.Random.Next (-300, 300);;
+                NbtData.SpawnZ = XMC.Random.Next (-300, 300);;
                 NbtData.SizeOnDisk = 0;
 
                 //TODO: write a rand number generator to generate longs
-                NbtData.RandomSeed = OpenMC.Random.Next ();
+                NbtData.RandomSeed = XMC.Random.Next ();
                 NbtData.LevelName = Name;
 
                 //Must be the internal MC revision Notch applys
@@ -106,7 +106,7 @@ namespace OpenMC
 
                 //Write it all to the disk
                 try {
-                    OpenMC.Log("Writing level.dat to disc...");
+                    XMC.Log("Writing level.dat to disc...");
                     while(!rawWriter.CanWrite)
                     {
                         System.Threading.Thread.Sleep(50);
@@ -115,7 +115,7 @@ namespace OpenMC
                 } catch (Exception ex) {
                     throw ex;
                 }
-                OpenMC.Log("Level.dat writen successfuly!");
+                XMC.Log("Level.dat writen successfuly!");
                 Writer.Close();
                 rawWriter.Close();
             }

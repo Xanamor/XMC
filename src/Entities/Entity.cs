@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
 
@@ -47,7 +47,7 @@ namespace OpenMC
         public Entity()
         {
             CurrentChunk = null;
-            EntityID = OpenMC.Random.Next();
+            EntityID = XMC.Random.Next();
         }
 
         #endregion Constructors
@@ -70,7 +70,7 @@ namespace OpenMC
         public virtual void Update()
         {
             Chunk oldChunk = CurrentChunk;
-            Chunk newChunk = OpenMC.Server.World.GetChunkAt((int) X, (int) Z);
+            Chunk newChunk = XMC.Server.World.GetChunkAt((int) X, (int) Z);
             if (oldChunk != newChunk) {
                 if (oldChunk != null) oldChunk.Entities.Remove(this);
                 newChunk.Entities.Add(this);
@@ -82,7 +82,7 @@ namespace OpenMC
             _LastX = X; _LastY = Y; _LastZ = Z;
             _LastYaw = Yaw; _LastPitch = Pitch;
             if (dx != 0 || dy != 0 || dz != 0 || rotchanged) {
-                foreach (Player p in OpenMC.Server.PlayerList) {
+                foreach (Player p in XMC.Server.PlayerList) {
                     if (p != this && p.VisibleEntities.Contains(this)) p.UpdateEntity(this, dx, dy, dz, rotchanged, false);
                 }
             }

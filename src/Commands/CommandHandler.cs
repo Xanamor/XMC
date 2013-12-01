@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -55,7 +55,7 @@ namespace OpenMC
 
         public object GetPlayerObject(string Username)
         {
-            Player Target = OpenMC.Server.PlayerList.Find(delegate(Player p) { return p.Username == Username; });
+            Player Target = XMC.Server.PlayerList.Find(delegate(Player p) { return p.Username == Username; });
                 return Target;
         }
 

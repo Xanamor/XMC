@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -87,14 +87,14 @@ namespace OpenMC
 
             if (!Spawned) return;
             Spawned = false;
-            OpenMC.Server.Despawn(this);
+            XMC.Server.Despawn(this);
             base.Despawn();
-            OpenMC.Server.PlayerList.Remove(this);
+            XMC.Server.PlayerList.Remove(this);
         }
 
         public void Disconnect(string message)
         {
-            OpenMC.Log("Saving player " + Username + "before disconnect");
+            XMC.Log("Saving player " + Username + "before disconnect");
             SavePlayer();
             _Conn.Disconnect(message);
         }
@@ -154,14 +154,14 @@ namespace OpenMC
             string InventoryPath = SavePath + "/" + InventoryFile;
             if (!Directory.Exists(SavePath))
             {
-                OpenMC.Log("Player Data does not exist for " + Username + " cannot load");
+                XMC.Log("Player Data does not exist for " + Username + " cannot load");
                 //just break if the save directory hasn't been made for this user (IE: has not been saved yet)
                 return;
             }
 
             try
             {
-                OpenMC.Log("Loading player " + Username);
+                XMC.Log("Loading player " + Username);
                 tmpFile = File.ReadAllLines(InventoryPath);
                 for (int i = 0; i < tmpFile.Length; i++)
                 {
@@ -179,7 +179,7 @@ namespace OpenMC
                     Inventory.AddItem(LoadedItems[i]);
                 }
             }
-            catch (System.Exception ex) { OpenMC.LogError(ex); }
+            catch (System.Exception ex) { XMC.LogError(ex); }
         }
 
         public void OpenWindow(Window window)
@@ -201,8 +201,8 @@ namespace OpenMC
                 CommandInstance.Handle(message.Split(' '));
             else
             {
-                OpenMC.Log("<" + Username + "> " + message);
-                OpenMC.Server.MessageAll(ChatTag + message);
+                XMC.Log("<" + Username + "> " + message);
+                XMC.Server.MessageAll(ChatTag + message);
             }
         }
 
@@ -227,14 +227,14 @@ namespace OpenMC
 
             if (!Directory.Exists(SavePath))
             {
-                OpenMC.Log("Creating new save folder for user: " + Username);
+                XMC.Log("Creating new save folder for user: " + Username);
                 Directory.CreateDirectory(SavePath);
                 File.Create(InventoryPath);
                 File.Create(DataPath);
                 return;
             }
             #endregion
-            OpenMC.Log("Saving " + Username + "...");
+            XMC.Log("Saving " + Username + "...");
                 for (int i = 0; i < 45; ++i)
                 {
                     InventoryQueue.Enqueue(BuildListing(i));
@@ -250,7 +250,7 @@ namespace OpenMC
                     }
                     fs.Close();
                 }
-                catch (System.Exception ex) { OpenMC.LogError(ex); }
+                catch (System.Exception ex) { XMC.LogError(ex); }
                 finally
                 {
                     if (fs != null)
@@ -266,7 +266,7 @@ namespace OpenMC
 
         public void SetHolding(InventoryItem item)
         {
-            // OpenMC.Log(this + " setting holding to " + item);
+            // XMC.Log(this + " setting holding to " + item);
             _Conn.Transmit(PacketType.WindowSetSlot, (sbyte) -1, (short) -1, item);
             WindowHolding = item;
         }
@@ -281,14 +281,14 @@ namespace OpenMC
 
             CommandInstance = new CommandHandler(AccessRights, this);
 
-            OpenMC.Server.Spawn(this);
+            XMC.Server.Spawn(this);
             Spawned = true;
             CurrentChunk = null;
 
             //Move the spawnees around a bit to prevent people from getting stuck in each other
-            X = OpenMC.Server.World.SpawnX + OpenMC.Random.NextDouble();
-            Y = OpenMC.Server.World.SpawnY + OpenMC.Random.Next(1,3);
-            Z = OpenMC.Server.World.SpawnZ + OpenMC.Random.NextDouble();
+            X = XMC.Server.World.SpawnX + XMC.Random.NextDouble();
+            Y = XMC.Server.World.SpawnY + XMC.Random.Next(1,3);
+            Z = XMC.Server.World.SpawnZ + XMC.Random.NextDouble();
 
                     LoadPlayer();
             Update();
@@ -309,12 +309,12 @@ namespace OpenMC
         public override void Update()
         {
             if (!Spawned) { return; }
-            Chunk newChunk = OpenMC.Server.World.GetChunkAt((int)X, (int)Z);
+            Chunk newChunk = XMC.Server.World.GetChunkAt((int)X, (int)Z);
 
             if (newChunk != CurrentChunk) {
                 List<Chunk> newVisibleChunks = new List<Chunk>();
 
-                foreach (Chunk c in OpenMC.Server.World.GetChunksInRange(newChunk)) {
+                foreach (Chunk c in XMC.Server.World.GetChunksInRange(newChunk)) {
                     newVisibleChunks.Add(c);
                 }
                 foreach (Chunk c in VisibleChunks) {
@@ -351,7 +351,7 @@ namespace OpenMC
 
             if (Inventory.slots[36 + SlotSelected].Type != _LastEquipment[0].Type) {
                 _LastEquipment[0] = Inventory.slots[36 + SlotSelected];
-                foreach (Player p in OpenMC.Server.PlayerList) {
+                foreach (Player p in XMC.Server.PlayerList) {
                     if (p != this && p.VisibleEntities.Contains(this)) {
                         p._Conn.Transmit(PacketType.EntityEquipment, EntityID,
                             (short) 0, (short) _LastEquipment[0].Type,
@@ -362,7 +362,7 @@ namespace OpenMC
 
             for (int i = 0; i < 4; ++i) {
                 if (Inventory.slots[5 + i].Type != _LastEquipment[i + 1].Type) {
-                    foreach (Player p in OpenMC.Server.PlayerList) {
+                    foreach (Player p in XMC.Server.PlayerList) {
                         if (p != this && p.VisibleEntities.Contains(this)) {
                             p._Conn.Transmit(PacketType.EntityEquipment, EntityID,
                                 (short) (i + 1), _LastEquipment[i + 1].Type,
@@ -372,7 +372,7 @@ namespace OpenMC
                 }
             }
 
-            _Conn.Transmit(PacketType.TimeUpdate, OpenMC.Server.World.Time);
+            _Conn.Transmit(PacketType.TimeUpdate, XMC.Server.World.Time);
             base.Update();
         }
 
@@ -401,7 +401,7 @@ namespace OpenMC
 
         public void WindowSetSlot(Window window, short slot, InventoryItem item)
         {
-            // OpenMC.Log(this + " setting slot " + slot + " of " + window.ID +  " to " + item);
+            // XMC.Log(this + " setting slot " + slot + " of " + window.ID +  " to " + item);
             _Conn.Transmit(PacketType.WindowSetSlot, (sbyte) window.ID, slot, item);
         }
 

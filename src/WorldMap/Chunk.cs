@@ -1,7 +1,7 @@
 ﻿#region Header
 
-//    OpenMC, a Minecraft SMP server.
-//    Copyright (C) 2011 OpenMC. All rights reserved.
+//    XMC, a Minecraft SMP server.
+//    Copyright (C) 2011 XMC. All rights reserved.
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #endregion Header
 
-namespace OpenMC
+namespace XMC
 {
     using System;
     using System.Collections.Generic;
@@ -211,10 +211,10 @@ namespace OpenMC
             int modZ = (ChunkZ >= 0 ? ChunkZ % 64 : 64 - Math.Abs(ChunkZ) % 64);
             StringBuilder sb = new StringBuilder();
             return (sb.Append(_World.WorldName).Append("/")
-                      .Append(OpenMC.Base36Encode(modX)).Append("/")
-                      .Append(OpenMC.Base36Encode(modZ)).Append("/")
-                      .Append("c.").Append(OpenMC.Base36Encode(ChunkX))
-                      .Append(".").Append(OpenMC.Base36Encode(ChunkZ))
+                      .Append(XMC.Base36Encode(modX)).Append("/")
+                      .Append(XMC.Base36Encode(modZ)).Append("/")
+                      .Append("c.").Append(XMC.Base36Encode(ChunkX))
+                      .Append(".").Append(XMC.Base36Encode(ChunkZ))
                       .Append(".dat").ToString());
         }
 
