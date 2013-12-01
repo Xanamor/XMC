@@ -134,7 +134,6 @@ namespace XMC
                                     //If it is a Block, else it is a item
                                     if (Convert.ToInt32(command[1]) < 256)
                                     {
-                                        //Holy shit its LISP....
                                         User.RecvServerMessage(((Block)BlockID).ToString() + " Added to inventory");
                                     }
                                     else

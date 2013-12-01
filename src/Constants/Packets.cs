@@ -27,9 +27,9 @@ namespace XMC
     public enum PacketType : byte
     {
         KeepAlive = 0x00,           
-        LoginDetails = 0x01,       
+        LoginRequest = 0x01,       
         Handshake = 0x02,           
-        Chat = 0x03,             
+        ChatMsg = 0x03,             
         TimeUpdate = 0x04,          
         EntityEquipment = 0x05,     
         SpawnPosition = 0x06,       
@@ -47,12 +47,13 @@ namespace XMC
         ArmAnimation = 0x12,        
         EntityAction = 0x13,		
         NamedEntitySpawn = 0x14,    
-        SpawnDropedItem = 0x15,         
+        //SpawnDropedItem = 0x15,         
         CollectItem = 0x16,         
         VehicleSpawn = 0x17,        
         MobSpawn = 0x18,            
         PaintingSpawn = 0x19,		
         SpawnExpOrb = 0x1A,
+        SteerVehicle = 0x1B,
         EntityVelocity = 0x1C,		
         DestroyEntity = 0x1D,       
         Entity = 0x1E,              
@@ -60,24 +61,27 @@ namespace XMC
         EntityLook = 0x20,         
         EntityLookAndMove = 0x21,   
         EntityTeleport = 0x22,      
-	EntityHeadLook = 0x23,
-        // Unused space
+	    EntityHeadLook = 0x23,
         EntityStatus = 0x26,		
         AttachEntity = 0x27,		
         EntityMetadata = 0x28,		
         EntityEffect = 0x29,
-	RemoveEntityEffect = 0x2A,
-	SetExpOrb = 0x2B,
-        MapColumnAllocation = 0x32,            
-        MapChunk = 0x33,            
+	    RemoveEntityEffect = 0x2A,
+	    SetExpOrb = 0x2B,
+        EntityProperties = 0x2C,
+        //MapColumnAllocation = 0x32,            
+        MapChunkData = 0x33,            
         MultiBlockChange = 0x34,    
         BlockChange = 0x35,         
-        BlockAction = 0x36,		
-        // Unused space
+        BlockAction = 0x36,
+		BlockBreakAnim = 0x37,
+        MapChunkBulk = 0x38,
         Explosion = 0x3C,		
-	SoundParticleEffect = 0x3D,
-	ChangeGameState = 0x46,
-	Thunderbolt = 0x47,
+	    SoundParticleEffect = 0x3D,
+        NamedSndEffect = 0x3E,
+        Particle = 0x3F,
+	    ChangeGameState = 0x46,
+	    SpawnGlobalEntity = 0x47,
         OpenWindow = 0x64,						
         WindowClick	= 0x66,			
         WindowSetSlot = 0x67,		
@@ -85,17 +89,24 @@ namespace XMC
         WindowProgress = 0x69,		
         Transaction = 0x6A,			
         CreativeInventoryAction = 0x6B,
-	EnchantItem = 0x6C,
+	    EnchantItem = 0x6C,
         UpdateSign = 0x82,
-	ItemData = 0x83,
-	UpdateTileEntity = 0x84,
-	IncrementStatistic = 0xC8,
-	PlayerListItem = 0xC9,
-	PlayerAbilities = 0xCA,
-	PluginMessage = 0xFA,
-	EncryptionResponse = 0xFC,
-	EncryptionRequest = 0xFD,
-	ServerListPing = 0xFE,
+	    ItemData = 0x83,
+	    UpdateTileEntity = 0x84,
+        TileEditorOpen = 0x85,
+	    IncrementStatistic = 0xC8,
+	    PlayerListItem = 0xC9,
+	    PlayerAbilities = 0xCA,
+        TabComplete = 0xCB,
+        ClientSettings = 0xCC,
+        ClientStatuses = 0xCD,
+        UpdateScore = 0xCF,
+        DisplayScore = 0xD0,
+        Teams = 0xD1,
+	    PluginMessage = 0xFA,
+	    EncryptionKeyResponse = 0xFC,
+	    EncryptionKeyRequest = 0xFD,
+	    ServerListPing = 0xFE,
         Disconnect = 0xFF         
     }
 
@@ -117,10 +128,10 @@ namespace XMC
         // I - inventory item - special handling (short; then if not -1: byte, short)
         public static string[] Data = {
             "bi",			// keep alive - 0x00
-            "bitiibbb",			// login request - 0x01
-            "bt",			// handshake - 0x02
+            "bitbbbbb",			// login request - 0x01
+            "bbtti",			// handshake - 0x02
             "bt",			// chat message 0x03
-            "bl",			// time update 0x04
+            "bll",			// time update 0x04
             "bisss",			// entity equipment 0x05
             "biii",			// spawn position 0x06
             "biib",			// interact entity 0x07
