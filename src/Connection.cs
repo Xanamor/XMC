@@ -45,7 +45,7 @@ namespace XMC
         private bool _Running;
         private Thread _Thread;
         private Queue<byte[]> _TransmitQueue;
-	private StringBuilder _StringBuilder;
+		private StringBuilder _StringBuilder;
         #endregion Fields
 
         #region Constructors
@@ -61,7 +61,7 @@ namespace XMC
 	    _Player = player;
 
 	    _Thread = new Thread (ConnectionThread);
-	    _Thread.Name = "OMC-Player " + _Client.GetHashCode ();
+	    _Thread.Name = "XMC-Player " + _Client.GetHashCode ();
 	    _Thread.Start ();
 	    _StringBuilder = new StringBuilder ();
         }
@@ -76,7 +76,7 @@ namespace XMC
             lock (_TransmitQueue) {
                 _TransmitQueue.Clear();
             }
-            Transmit(PacketType.Disconnect, message);
+            Transmit(Net.OutPacketType.Disconnect, message);
             lock (_TransmitQueue) {
                 TransmitRaw(_TransmitQueue.Dequeue());
             }
@@ -86,17 +86,7 @@ namespace XMC
 
         public void SendChunk(Chunk chunk)
         {
-            Transmit(PacketType.MapColumnAllocation, chunk.ChunkX, chunk.ChunkZ, (sbyte) 1);
-
-            byte[] uncompressed = chunk.GetBytes();
-            MemoryStream mem = new MemoryStream();
-            ZOutputStream stream = new ZOutputStream(mem, zlibConst.Z_BEST_COMPRESSION);
-            stream.Write(uncompressed, 0, uncompressed.Length);
-            stream.Close();
-            byte[] data = mem.ToArray();
-
-            Transmit(PacketType.MapChunk, 16 * chunk.ChunkX, (short) 0, 16 * chunk.ChunkZ,
-                (sbyte) 15, (sbyte) 127, (sbyte) 15, data.Length, data);
+         
         }
 
         public void Stop()
@@ -185,14 +175,13 @@ namespace XMC
             }
         }
 
-        private Pair<int, object[]> CheckCompletePacket ()
-	{
-	    Pair<int, object[]> nPair = new Pair<int, object[]> (0, null);
+    	private Pair<int, object[]> CheckCompletePacket () {
+	    	Pair<int, object[]> nPair = new Pair<int, object[]> (0, null);
 
-	    PacketType type = (PacketType)_Buffer [0];
-	    if (_Buffer [0] >= PacketStructure.Data.Length && _Buffer [0] != 0xFF) {
-		XMC.Log ("Got invalid packet: " + _Buffer [0]);
-		return nPair;
+	    	Net.InPacketType type = (PacketType)_Buffer [0];
+			if (_Buffer [0] >= PacketStructure.Data.Length && _Buffer [0] != 0xFF) {
+				XMC.Log ("Got invalid packet: " + _Buffer [0]);
+				return nPair;
 	    }
 
 	    string structure = (type == PacketType.Disconnect ? "bt" : PacketStructure.Data [_Buffer [0]]);
@@ -340,13 +329,10 @@ namespace XMC
                     Thread.Sleep(30);
                 }
                 catch (Exception e) {
-                    try {
+						XMC.LogError(e);
                         Disconnect("Server error: " + e.Message);
+						_Running = false;
                     }
-                    catch(Exception) {}
-                    XMC.LogError(e);
-                    _Running = false;
-                }
             }
             if (_Player.Spawned) {
                 XMC.Log(_Player.Username + " has left (" + _QuitMsg + ")");
@@ -396,304 +382,61 @@ namespace XMC
                 }
             }
         }
-
-        private void ProcessPacket (object[] packet)
-	{
-	    PacketType type = (PacketType)(byte)packet [0];
-			XMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
+private void ProcessPacket (object[] packet) {
+	    Net.InPacketType type = (Net.InPacketType)(byte)packet [0];
+		XMC.Log ("Recieved Packet " + type + " (" + (byte)type + ")");
 	    switch (type) {
-	    case PacketType.EncryptionRequest:
-		{
-		   break;
-		}
-	    case PacketType.Handshake:
-		{
-		    string[] NameField = packet [1].ToString().Split ((char)';');
-		    _Player.Username = NameField [0];
-                    //Transmit (PacketType.Handshake, XMC.Server.ServerHash);
-		    XMC.LogWarrning(this._Player.EntityID + " started AES Handshake...");
-		    byte[] RandBytes = new byte[4];
-		    XMC.Random.NextBytes(RandBytes);
-		    XMC.Log("Sending Public key and 4 random bytes");
-		    Transmit (PacketType.EncryptionRequest,XMC.);
+			case (Net.InPacketType.KeepAlive):
+				break;
+			case (Net.InPacketType.ChatMessage):
+				break;
+			case (Net.InPacketType.UseEntity):
+				break;
+			case (Net.InPacketType.Player):
+				break;
+			case (Net.InPacketType.PlayerPos):
+				break;
+			case (Net.InPacketType.PlayerLook):
+				break;
+			case (Net.InPacketType.PlayerPosLook):
+				break;
+			case (Net.InPacketType.PlayerDigging):
+				break;
+			case (Net.InPacketType.PlayerBlkPlace):
+				break;
+			case (Net.InPacketType.HeldItemChg):
+				break;
+			case (Net.InPacketType.Animation):
+				break;
+			case (Net.InPacketType.EntityAction):
+				break;
+			case (Net.InPacketType.SteerVehicle):
+				break;
+			case (Net.InPacketType.ClickWindow):
+				break;
+			case (Net.InPacketType.CloseWindow):
+				break;
+			case (Net.InPacketType.ConfirmTransAct):
+				break;
+			case (Net.InPacketType.CreateInvAct):
+				break;
+			case (Net.InPacketType.EnchantItem):
+				break;
+			case (Net.InPacketType.UpdateSign):
+				break;
+			case (Net.InPacketType.PlayerAbilities):
+				break;
+			case (Net.InPacketType.TabComplete):
+				break;
+			case (Net.InPacketType.ClientSettings):
+				break;
+			case (Net.InPacketType.ClientStatus):
+				break;
+			case (Net.InPacketType.PluginMessage):
+				break;
+            default:
+                    XMC.Log("[Packet] " + _Player.Username + " sent Unknown packet (Wrong Version?)" + type);
                     break;
-                }
-            case PacketType.LoginDetails:
-                {
-                    int protocol = (int)packet[1];
-                    if (protocol != XMC.ProtocolVersion) {
-                        XMC.Log ("Expecting protocol v" + XMC.ProtocolVersion + ", got v" + (int)packet[1]);
-                        if (protocol > XMC.ProtocolVersion) {
-                            Disconnect ("Outdated server!");
-                        } else {
-                            Disconnect ("Outdated client!");
-                        }
-                        break;
-                    }
-                    if ((string)packet[2] != _Player.Username) {
-                        XMC.Log ("Usernames did not match: Handshake=" + _Player.Username + ", Login=" + (string)packet[2]);
-                        Disconnect ("Usernames did not match");
-                        break;
-                    }
-
-                    // TODO: Implement name verification
-
-                    Transmit (PacketType.LoginDetails, 
-			_Player.EntityID,
-			"default",	//Level Type
-			(sbyte)1,	//Game Mode
-			(sbyte)0,	//Dimension
-			(sbyte)0,	//Difficulty
-   			(byte)0, 	//Not Used
-			(byte)8);	//Max Players
-                    XMC.Log (_Player.Username + " (/" + IPString + ") has joined");
-                    // TODO: Load Player Data from SaveFile
-                    _Player.Spawn ();
-                    break;
-                }
-
-                case PacketType.Chat:
-                {
-                    _Player.RecvMessage ((string)packet[1]);
-                    break;
-                }
-
-                case PacketType.Player:
-                {
-                    // Ignore.
-                    break;
-                }
-            case PacketType.PlayerPosition:
-                {
-                    _Player.X = (double)packet[1];
-                    _Player.Y = (double)packet[2];
-                    //
-                    _Player.Z = (double)packet[4];
-                    //
-                    break;
-                }
-            case PacketType.PlayerLook:
-                {
-                    // TODO: Figure out this and PlayerPositionLook
-                    float yaw = (float)packet[1], pitch = (float)packet[2];
-                    _Player.Yaw = (sbyte)(yaw * 256 / 360);
-                    _Player.Pitch = (sbyte)(pitch * 256 / 360);
-                    break;
-                }
-            case PacketType.PlayerPositionLook:
-                {
-                    _Player.X = (double)packet[1];
-                    _Player.Y = (double)packet[2];
-                    // TODO: Do something with stance maybe.
-                    _Player.Z = (double)packet[4];
-                    float yaw = (float)packet[5], pitch = (float)packet[6];
-                    _Player.Yaw = (sbyte)(yaw * 256 / 360);
-                    _Player.Pitch = (sbyte)(pitch * 256 / 360);
-                    break;
-                }
-
-                case PacketType.Disconnect:
-                {
-                    Disconnect ("Quitting");
-                    break;
-                }
-
-                case PacketType.PlayerDigging:
-                {
-                    sbyte status = (sbyte)packet[1];
-                    int x = (int)packet[2];
-                    sbyte y = (sbyte)packet[3];
-                    int z = (int)packet[4];
-                    //sbyte face = (sbyte)packet[5];
-
-                    if (status == 0)
-                        break;
-
-                    Chunk c = XMC.Server.World.GetChunkAt (x, z);
-                    Pair<int, int> pos = c.GetChunkPos (x, z);
-                    Block b = c.GetBlock (pos.First, y, pos.Second);
-
-                    if (b == Block.Air)
-                        break;
-                    if (status == 2)
-                    {
-                        // TODO: Add server side checks for block "hp"
-                        // TODO: Make certain items drop the right blocks (Coal from Coal blocks)
-                        // TODO: Ensure player can actually destroy this block.
-                        List<Block> BlockYeildList = new List<Block> ();
-                        for (int i = 0; i < BlockYeild.YieldsItemList.Length; i++)
-                        {
-                            BlockYeildList.Add ((Block)BlockYeild.YieldsItemList[i]);
-                        }
-                        if (BlockYeildList.Contains (b))
-                        {
-                            switch (b)
-                            {
-                            case Block.Stone:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Block.Cobblestone));
-                                break;
-                            case Block.Grass:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Block.Dirt));
-                                break;
-                            case Block.GoldOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Item.Gold));
-                                break;
-                            case Block.IronOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Item.Iron));
-                                break;
-                            case Block.CoalOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Item.Coal));
-                                break;
-                            case Block.LapisOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Item.Dye, (short)Metadata.Dyes.LapisLazuli));
-                                break;
-                            case Block.DiamondOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                new PickupEntity (x, y, z, new InventoryItem ((short)Item.Diamond));
-                                break;
-                            case Block.RedstoneOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                for (int i = 0; i < (XMC.Random.Next (6) + 2); i++)
-                                    new PickupEntity (x, y, z, new InventoryItem ((short)Item.Redstone));
-
-                                break;
-                            case Block.GlowingRedstoneOre:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-
-                                for (int i = 0; i < (XMC.Random.Next (6) + 2); i++)
-                                    new PickupEntity (x, y, z, new InventoryItem ((short)Item.Redstone));
-
-                                break;
-
-                            //FIXME: Causes client to recive n+1 Snowballs for each SnowSurface , Disabled for now
-                            case Block.SnowSurface:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                //new PickupEntity (x, y, z, new InventoryItem ((short)Item.Snowball,1,0));
-                                break;
-                            case Block.Ice:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                break;
-                            case Block.SnowBlock:
-                                c.SetBlock (pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged (x, y, z, Block.Air);
-                                for (int i = 0; i < 4; i++)
-                                    new PickupEntity (x, y, z, new InventoryItem ((short)Item.Snowball));
-                                break;
-
-                            //should NEVER get here normaly
-                            default:
-                                c.SetBlock(pos.First, y, pos.Second, Block.Air);
-                                XMC.Server.BlockChanged(x, y, z, Block.Air);
-                                new PickupEntity(x, y, z, new InventoryItem((short) b));
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            c.SetBlock(pos.First, y, pos.Second, Block.Air);
-                            XMC.Server.BlockChanged(x, y, z, Block.Air);
-                            new PickupEntity(x, y, z, new InventoryItem((short) b));
-                        }
-
-                    }
-                    break;
-                }
-
-                case PacketType.PlayerBlockPlace: {
-                    int x = (int) packet[1];
-                    sbyte y = (sbyte) packet[2];
-                    int z = (int) packet[3];
-                    sbyte face = (sbyte) packet[4];
-                    InventoryItem block = (InventoryItem) packet[5];
-
-                    GetOffsetPos(ref x, ref y, ref z, face);
-
-                    InventoryItem i = _Player.Inventory.slots[36 + _Player.SlotSelected];
-                    if (block.Type != i.Type) break;
-                    if (i.Type <= 0 || i.Type >= 256) break;
-
-                    Chunk c = XMC.Server.World.GetChunkAt(x, z);
-                    Pair<int, int> pos = c.GetChunkPos(x, z);
-                    c.SetBlock(pos.First, y, pos.Second, (Block) i.Type);
-                    XMC.Server.BlockChanged(x, y, z, (Block) i.Type);
-
-                    if (--i.Count == 0) {
-                        i.Type = -1;
-                        i.Damage = 0;
-                    }
-                    _Player.Inventory.SetSlot((short)(36 + _Player.SlotSelected), i);
-
-                    break;
-                }
-
-                case PacketType.WindowClick: {
-                    sbyte id = (sbyte) packet[1];
-                    short slot = (short) packet[2];
-                    byte rclick = (byte) (sbyte) packet[3];
-                    short action = (short) packet[4];
-                    InventoryItem item = (InventoryItem) packet[5];
-                    //byte ItemCount = (byte)packet[6];
-                    //short ItemUses = (short)packet[7];
-
-                    bool success = false;
-                    if (id == 0) {
-                        success = _Player.Inventory.Click(_Player, slot, rclick, item);
-                    } else {
-                        foreach (Window w in XMC.Server.WindowList) {
-                            if (w.ID == (byte) id) {
-                                success = w.Click(_Player, slot, rclick, item);
-                                break;
-                            }
-                        }
-                    }
-                    Transmit(PacketType.Transaction, id, action, (sbyte)(success ? 1 : 0));
-
-                    break;
-                }
-
-		// N/A as of Inventory Overhaul
-
-               /* case PacketType.CloseWindow: {
-                    sbyte id = (sbyte) packet[1];
-                    if (id == 0) {
-                        _Player.Inventory.Close(_Player);
-                    } else {
-                        foreach (Window w in XMC.Server.WindowList) {
-                            if (w.ID == (byte) id) {
-                                w.Close(_Player);
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }*/
-
-                case PacketType.PlayerHolding: {
-                    _Player.SlotSelected = (int) (short) packet[1];
-                    break;
-                }
-
-                default: {
-                    XMC.Log("[Packet] " + _Player.Username + " sent unimplemented packet " + type);
-                    break;
-                }
             }
         }
 

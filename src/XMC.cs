@@ -35,10 +35,8 @@ namespace XMC
 
         //TODO: Relocate and have better error handling for Protocol Versions, maybe multiple clients idk
         public const int ProtocolVersion = 10;
-
         public static Random Random;
         public static Server Server;
-	    public static AesStream CryptStream;
 
         #endregion Fields
 
@@ -90,7 +88,7 @@ namespace XMC
         public static void Main(string[] args)
         {
 			Log ("XMC is starting...");
-            //TODO: MySql
+            //TODO: SQLite
             Configuration.Load();
 
             if (Configuration.Defined("random-seed")) {

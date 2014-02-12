@@ -45,7 +45,6 @@ namespace XMC
         public string Motd;
         public string Name;
         public List<Player> PlayerList;
-        public PluginServices Plugins;
         public int Port;
         public bool Running;
         public string ServerHash;
@@ -114,12 +113,6 @@ namespace XMC
         {
             World = new Map(WorldName);
             World.Time = 0;
-
-            Plugins = new PluginServices();
-            XMC.ScriptLog("Loading Plugins");
-            Plugins.FindPlugins();
-            XMC.ScriptLog("Loaded " + Plugins.Plugins.Count + " Plugins");
-
             if (!File.Exists(WorldName + "/level.dat"))
             {
             XMC.Log("Generating world " + WorldName);

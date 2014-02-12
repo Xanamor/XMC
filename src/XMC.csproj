@@ -74,6 +74,9 @@
     <Reference Include="zlib.net, Version=1.0.3.0, Culture=neutral, PublicKeyToken=47d7877cb3620160">
       <HintPath>..\lib\zlib.net.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -84,7 +87,6 @@
     <Compile Include="XMC.cs" />
     <Compile Include="Constants\Blocks.cs" />
     <Compile Include="Constants\Color.cs" />
-    <Compile Include="Constants\Packets.cs" />
     <Compile Include="Constants\Ranks.cs" />
     <Compile Include="Utils\Configuration.cs" />
     <Compile Include="Utils\NBT.cs" />
@@ -101,8 +103,9 @@
     <Compile Include="WorldMap\Chunk.cs" />
     <Compile Include="WorldMap\Map.cs" />
     <Compile Include="Entities\Player.cs" />
-    <Compile Include="Utils\AESStream.cs" />
-    <Compile Include="Utils\RSAKey.cs" />
+    <Compile Include="Net\AESStream.cs" />
+    <Compile Include="Net\Packets.cs" />
+    <Compile Include="Net\Crypto.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -118,13 +121,10 @@
           <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/xml" />
           <StandardHeader Text=" Copyright (c) ${Year} ${CopyrightHolder}&#xA;&#xA; This program is free software: you can redistribute it and/or modify&#xA; it under the terms of the GNU General Public License as published by&#xA; the Free Software Foundation, either version 3 of the License, or&#xA; (at your option) any later version.&#xA;&#xA; This program is distributed in the hope that it will be useful,&#xA; but WITHOUT ANY WARRANTY; without even the implied warranty of&#xA; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#xA; GNU General Public License for more details.&#xA;&#xA; You should have received a copy of the GNU General Public License&#xA; along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;." IncludeInNewFiles="True" />
         </Policies>
-        <Deployment.LinuxDeployData generateScript="false" scriptName="OpenMC" />
+        <Deployment.LinuxDeployData generateScript="False" scriptName="OpenMC" />
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <ItemGroup>
-    <Folder Include="Plugins\" />
-  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
@@ -147,5 +147,8 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Net\" />
   </ItemGroup>
 </Project>
