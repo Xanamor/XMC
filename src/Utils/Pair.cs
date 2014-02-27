@@ -22,31 +22,31 @@ using System;
 
 public class Pair<T, U>
 {
-    #region Constructors
+	#region Constructors
 
-    public Pair()
-    {
-    }
+	public Pair ()
+	{
+	}
 
-    public Pair(T first, U second)
-    {
-        this.First = first;
-        this.Second = second;
-    }
+	public Pair (T first, U second)
+	{
+		this.First = first;
+		this.Second = second;
+	}
 
-    #endregion Constructors
+	#endregion Constructors
 
-    #region Properties
+	#region Properties
 
-    public T First
-    {
-        get; set;
-    }
+	public T First {
+		get;
+		set;
+	}
 
-    public U Second
-    {
-        get; set;
-    }
+	public U Second {
+		get;
+		set;
+	}
 
-    #endregion Properties
+	#endregion Properties
 }

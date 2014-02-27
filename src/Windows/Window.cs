@@ -20,72 +20,71 @@
 
 namespace XMC
 {
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 
-    public abstract class Window
-    {
-        #region Fields
+	public abstract class Window
+	{
+		#region Fields
 
-        public byte ID;
-        public string Title;
-        public byte Type;
+		public byte ID;
+		public string Title;
+		public byte Type;
+		protected List<Player> _Viewers;
+		private static byte _NextID = 2;
 
-        protected List<Player> _Viewers;
+		#endregion Fields
 
-        private static byte _NextID = 2;
+		#region Constructors
 
-        #endregion Fields
+		protected Window (byte type, string title)
+		{
+			_Viewers = new List<Player> ();
+			ID = _NextID;
+			if (++_NextID > 125)
+				_NextID = 2;
 
-        #region Constructors
+			Type = type;
+			Title = title;
+		}
 
-        protected Window(byte type, string title)
-        {
-            _Viewers = new List<Player>();
-            ID = _NextID;
-            if (++_NextID > 125) _NextID = 2;
+		#endregion Constructors
 
-            Type = type;
-            Title = title;
-        }
+		#region Properties
 
-        #endregion Constructors
+		public InventoryItem[] slots {
+			get;
+			protected set;
+		}
 
-        #region Properties
+		#endregion Properties
 
-        public InventoryItem[] slots
-        {
-            get; protected set;
-        }
+		#region Methods
 
-        #endregion Properties
+		public abstract bool Click (Player p, short slot, byte type, InventoryItem item);
 
-        #region Methods
+		public virtual void Close (Player player)
+		{
+			_Viewers.Remove (player);
+			if (_Viewers.Count == 0) {
+				XMC.Server.WindowList.Remove (this);
+			}
+		}
 
-        public abstract bool Click(Player p, short slot, byte type, InventoryItem item);
+		public virtual void Open (Player player)
+		{
+			_Viewers.Add (player);
+			player.OpenWindow (this);
+		}
 
-        public virtual void Close(Player player)
-        {
-            _Viewers.Remove(player);
-            if (_Viewers.Count == 0) {
-                XMC.Server.WindowList.Remove(this);
-            }
-        }
+		public void SetSlot (short slot, InventoryItem item)
+		{
+			slots [slot] = item;
+			foreach (Player player in _Viewers) {
+				player.WindowSetSlot (this, slot, item);
+			}
+		}
 
-        public virtual void Open(Player player)
-        {
-            _Viewers.Add(player);
-            player.OpenWindow(this);
-        }
-
-        public void SetSlot(short slot, InventoryItem item)
-        {
-            slots[slot] = item;
-            foreach (Player player in _Viewers) {
-                player.WindowSetSlot(this, slot, item);
-            }
-        }
-
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

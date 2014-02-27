@@ -20,88 +20,91 @@
 
 namespace XMC
 {
-    using System;
+	using System;
 
-    public class PlayerInventory : Window
-    {
-        #region Fields
+	public class PlayerInventory : Window
+	{
+		#region Fields
 
-        private Player _Player;
+		private Player _Player;
 
-        #endregion Fields
+		#endregion Fields
 
-        #region Constructors
+		#region Constructors
 
-        public PlayerInventory(Player player)
-            : base(0, "Inventory")
-        {
-            _Player = player;
-            ID = 0;
-            slots = new InventoryItem[45];
-            for (int i = 0; i < 45; ++i) {
-                slots[i].Type = -1;
-            }
-            _Viewers.Add(_Player);
-        }
+		public PlayerInventory (Player player)
+            : base (0, "Inventory")
+		{
+			_Player = player;
+			ID = 0;
+			slots = new InventoryItem[45];
+			for (int i = 0; i < 45; ++i) {
+				slots [i].Type = -1;
+			}
+			_Viewers.Add (_Player);
+		}
 
-        #endregion Constructors
+		#endregion Constructors
 
-        #region Methods
+		#region Methods
 
-        public bool AddItem(InventoryItem item)
-        {
-            // TODO: Better logic.
-            for (short i = 36; i < 45; ++i) {
-                if (TryAddItem(i, item)) return true;
-            }
-            for (short i = 9; i < 36; ++i) {
-                if (TryAddItem(i, item)) return true;
-            }
-            return false;
-        }
+		public bool AddItem (InventoryItem item)
+		{
+			// TODO: Better logic.
+			for (short i = 36; i < 45; ++i) {
+				if (TryAddItem (i, item))
+					return true;
+			}
+			for (short i = 9; i < 36; ++i) {
+				if (TryAddItem (i, item))
+					return true;
+			}
+			return false;
+		}
 
-        public override bool Click(Player p, short slot, byte type, InventoryItem item)
-        {
-            InventoryItem holding = p.WindowHolding;
-            if (slot < 0) {
-                // outside window
-                return false;
-            } else if (slot == 0) {
-                // crafting slot
-                return true;
-            } else {
-                if (!item.Equals(slots[slot])) return false;
-                p.SetHolding(slots[slot]);
-                SetSlot(slot, holding);
-                return true;
-            }
-        }
+		public override bool Click (Player p, short slot, byte type, InventoryItem item)
+		{
+			InventoryItem holding = p.WindowHolding;
+			if (slot < 0) {
+				// outside window
+				return false;
+			} else if (slot == 0) {
+				// crafting slot
+				return true;
+			} else {
+				if (!item.Equals (slots [slot]))
+					return false;
+				p.SetHolding (slots [slot]);
+				SetSlot (slot, holding);
+				return true;
+			}
+		}
 
-        public override void Close(Player player)
-        {
-            // TODO: Jettison items in crafting slots.
-        }
+		public override void Close (Player player)
+		{
+			// TODO: Jettison items in crafting slots.
+		}
 
-        public override void Open(Player player)
-        {
-            /* nil */
-        }
+		public override void Open (Player player)
+		{
+			/* nil */
+		}
 
-        private bool TryAddItem(short i, InventoryItem item)
-        {
-            if (slots[i].Type == -1) {
-                SetSlot(i, item);
-                return true;
-            } else if (slots[i].Type == item.Type) {
-                if (slots[i].Count + item.Count <= 64) {
-                    slots[i].Count += item.Count;
-                    SetSlot(i, slots[i]);
-                    return true;
-                }
-            }
-            return false;
-        }
+		private bool TryAddItem (short i, InventoryItem item)
+		{
+			if (slots [i].Type == -1) {
+				SetSlot (i, item);
+				return true;
+			} else if (slots [i].Type == item.Type) {
+				if (slots [i].Count + item.Count <= 64) {
+					slots [i].Count += item.Count;
+					SetSlot (i, slots [i]);
+					return true;
+				}
+			}
+			return false;
+		}
 
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

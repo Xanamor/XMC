@@ -20,31 +20,31 @@
 
 namespace XMC.Constants
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+	using System;
+	using System.Collections.Generic;
+	using System.Text;
 
-    static class SSettings
-    {
-        #region Fields
+	static class SSettings
+	{
+		#region Fields
 
-        public static bool checkUpdates = true;
-        public static string InternalVersion = "v0.0.10";
-        public static string ListenAddr = Configuration.Get("listenAddr","0.0.0.0");
-        public static int ListenPort = Configuration.GetInt("port", 25565);
-        public static bool LoggingEnabled = true;
-        public static int MaxPlayers = Configuration.GetInt("max-players", 8);
-        public static string MOTD = Configuration.Get("motd", "Powered by " + Color.Blue + "XMC");
-        public static string MySQLDatabaseName = Configuration.Get("Database","XMC");
-        public static string MySQLHost = Configuration.Get("DBhost","127.0.0.1");
-        public static string MySQLPassword = Configuration.Get("Password","");
-        public static string MySQLUsername = Configuration.Get("User","root");
-        public static string PlayerSavePath = "./players/";
-        public static bool pub = true;
-        public static string ServerName = Configuration.Get("server-name", "Minecraft Server");
-        public static bool verify = true;
-        public static string WorldName = Configuration.Get("world", "world");
+		public static bool checkUpdates = true;
+		public static string InternalVersion = "v0.0.10";
+		public static string ListenAddr = Configuration.Get ("listenAddr", "0.0.0.0");
+		public static int ListenPort = Configuration.GetInt ("port", 25565);
+		public static bool LoggingEnabled = true;
+		public static int MaxPlayers = Configuration.GetInt ("max-players", 8);
+		public static string MOTD = Configuration.Get ("motd", "Powered by " + Color.Blue + "XMC");
+		public static string MySQLDatabaseName = Configuration.Get ("Database", "XMC");
+		public static string MySQLHost = Configuration.Get ("DBhost", "127.0.0.1");
+		public static string MySQLPassword = Configuration.Get ("Password", "");
+		public static string MySQLUsername = Configuration.Get ("User", "root");
+		public static string PlayerSavePath = "./players/";
+		public static bool pub = true;
+		public static string ServerName = Configuration.Get ("server-name", "Minecraft Server");
+		public static bool verify = true;
+		public static string WorldName = Configuration.Get ("world", "world");
 
-        #endregion Fields
-    }
+		#endregion Fields
+	}
 }

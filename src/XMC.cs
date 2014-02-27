@@ -20,104 +20,104 @@
 
 namespace XMC
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Security.Cryptography;
-    using System.Text;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Security.Cryptography;
+	using System.Text;
+	using Logger;
+	using Utils;
 
-    using Logger;
-    using Utils;
+	public static class XMC
+	{
+		#region Fields
 
-    public static class XMC
-    {
-        #region Fields
+		//TODO: Relocate and have better error handling for Protocol Versions, maybe multiple clients idk
+		public const int ProtocolVersion = 10;
+		public static Random Random;
+		public static Server Server;
 
-        //TODO: Relocate and have better error handling for Protocol Versions, maybe multiple clients idk
-        public const int ProtocolVersion = 10;
-        public static Random Random;
-        public static Server Server;
+		#endregion Fields
 
-        #endregion Fields
+		#region Methods
 
-        #region Methods
+		public static string Base36Encode (long input)
+		{
+			if (input == 0)
+				return "0";
+			string chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+			bool negative = (input < 0);
 
-        public static string Base36Encode(long input)
-        {
-            if (input == 0) return "0";
-            string chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-            bool negative = (input < 0);
+			StringBuilder sb = new StringBuilder ();
+			if (negative) {
+				input = -input;
+				sb.Append ("-");
+			}
+			while (input > 0) {
+				sb.Insert ((negative ? 1 : 0), chars [(int)(input % 36)]);
+				input /= 36;
+			}
+			return sb.ToString ();
+		}
 
-            StringBuilder sb = new StringBuilder();
-            if (negative) {
-                input = -input;
-                sb.Append("-");
-            }
-            while (input > 0) {
-                sb.Insert((negative ? 1 : 0), chars[(int)(input % 36)]);
-                input /= 36;
-            }
-            return sb.ToString();
-        }
+		public static string Base64Encode (string str)
+		{
+			return Convert.ToBase64String (System.Text.Encoding.UTF8.GetBytes (str));
+		}
 
-        public static string Base64Encode(string str)
-        {
-            return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(str));
-        }
+		public static string FormatTime ()
+		{
+			return DateTime.Now.ToString ("HH:mm:ss");
+		}
 
-        public static string FormatTime()
-        {
-            return DateTime.Now.ToString("HH:mm:ss");
-        }
+		public static void Log (string message)
+		{
+			LogManager.LogNotice (FormatTime () + "  >   " + message + "\n");
+		}
 
-        public static void Log(string message)
-        {
-            LogManager.LogNotice(FormatTime() + "  >   " + message + "\n");
-        }
+		public static void LogError (Exception e)
+		{
+			LogManager.LogError (e);
+		}
 
-        public static void LogError(Exception e)
-        {
-            LogManager.LogError(e);
-        }
+		public static void LogWarrning (string message)
+		{
+			LogManager.LogWarrning (FormatTime () + ">   " + message + "\n");
+		}
 
-        public static void LogWarrning(string message)
-        {
-            LogManager.LogWarrning(FormatTime() + ">   " + message + "\n");
-        }
-
-        public static void Main(string[] args)
-        {
+		public static void Main (string[] args)
+		{
 			Log ("XMC is starting...");
-            //TODO: SQLite
-            Configuration.Load();
+			//TODO: SQLite
+			Configuration.Load ();
 
-            if (Configuration.Defined("random-seed")) {
-                Random = new Random(Configuration.GetInt("random-seed", 0));
-            } else {
-                Random = new Random();
-            }
+			if (Configuration.Defined ("random-seed")) {
+				Random = new Random (Configuration.GetInt ("random-seed", 0));
+			} else {
+				Random = new Random ();
+			}
 
-            Server = new Server();
-            try {
-                Server.Run();
-            }
-            catch (Exception e) {
-                Log("Fatal uncaught exception: " + e);
-            }
+			Server = new Server ();
+			try {
+				Server.Run ();
+			} catch (Exception e) {
+				Log ("Fatal uncaught exception: " + e);
+			}
 
-            Log("Bye!");
-        }
+			Log ("Bye!");
+		}
 
-        public static string MD5sum(string str)
-        {
-            MD5CryptoServiceProvider crypto = new MD5CryptoServiceProvider();
-            byte[] data = Encoding.ASCII.GetBytes(str);
-            data = crypto.ComputeHash(data);
-            StringBuilder ret = new StringBuilder();
-            for (int i = 0; i < data.Length; i++)
-                ret.Append(data[i].ToString("x2").ToLower());
-            return ret.ToString();
-        }
-        #endregion Methods
-    }
+		public static string MD5sum (string str)
+		{
+			MD5CryptoServiceProvider crypto = new MD5CryptoServiceProvider ();
+			byte[] data = Encoding.ASCII.GetBytes (str);
+			data = crypto.ComputeHash (data);
+			StringBuilder ret = new StringBuilder ();
+			for (int i = 0; i < data.Length; i++)
+				ret.Append (data [i].ToString ("x2").ToLower ());
+			return ret.ToString ();
+		}
+
+		#endregion Methods
+	}
 }

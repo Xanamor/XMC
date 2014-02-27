@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Text;
+
 namespace Net
 {
 	public static class Crypto
@@ -17,39 +18,37 @@ namespace Net
 		/// <summary>
 		/// Creates a Java-style SHA-1 hash.
 		/// </summary>
-		public static string JavaHexDigest(byte[] data)
+		public static string JavaHexDigest (byte[] data)
 		{
-			SHA1 sha1 = SHA1.Create();
-			byte[] hash = sha1.ComputeHash(data);
-			bool negative = (hash[0] & 0x80) == 0x80;
+			SHA1 sha1 = SHA1.Create ();
+			byte[] hash = sha1.ComputeHash (data);
+			bool negative = (hash [0] & 0x80) == 0x80;
 			if (negative) // check for negative hashes
-				hash = TwosCompliment(hash);
+				hash = TwosCompliment (hash);
 			// Create the string and trim away the zeroes
-			string digest = GetHexString(hash).TrimStart('0');
+			string digest = GetHexString (hash).TrimStart ('0');
 			if (negative)
 				digest = "-" + digest;
 			return digest;
 		}
 
-		private static string GetHexString(byte[] p)
+		private static string GetHexString (byte[] p)
 		{
 			string result = "";
 			for (int i = 0; i < p.Length; i++)
-				result += p[i].ToString("X2");
+				result += p [i].ToString ("X2");
 			return result;
 		}
 
-		private static byte[] TwosCompliment(byte[] p) // little endian
+		private static byte[] TwosCompliment (byte[] p) // little endian
 		{
 			int i;
 			bool carry = true;
-			for (i = p.Length - 1; i >= 0; i--)
-			{
-				p[i] = unchecked((byte)~p[i]);
-				if (carry)
-				{
-					carry = p[i] == 0xFF;
-					p[i]++;
+			for (i = p.Length - 1; i >= 0; i--) {
+				p [i] = unchecked((byte)~p [i]);
+				if (carry) {
+					carry = p [i] == 0xFF;
+					p [i]++;
 				}
 			}
 			return p;
@@ -58,9 +57,8 @@ namespace Net
 
 	public class AsnKeyBuilder
 	{
-		private static readonly byte[] Zero = new byte[] {0};
-		private static readonly byte[] Empty = new byte[] {};
-
+		private static readonly byte[] Zero = new byte[] { 0 };
+		private static readonly byte[] Empty = new byte[] { };
 		// PublicKeyInfo (X.509 compatible) message
 		/// <summary>
 		/// Returns the AsnMessage representing the X.509 PublicKeyInfo.
@@ -71,7 +69,7 @@ namespace Net
 		/// <seealso cref="PrivateKeyToPKCS8(DSAParameters)"/>
 		/// <seealso cref="PrivateKeyToPKCS8(RSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(RSAParameters)"/>
-		public static AsnMessage PublicKeyToX509(DSAParameters publicKey)
+		public static AsnMessage PublicKeyToX509 (DSAParameters publicKey)
 		{
 			// Value Type cannot be null
 			// Debug.Assert(null != publicKey);
@@ -89,31 +87,30 @@ namespace Net
             * */
 
 			// DSA Parameters
-			AsnType p = CreateIntegerPos(publicKey.P);
-			AsnType q = CreateIntegerPos(publicKey.Q);
-			AsnType g = CreateIntegerPos(publicKey.G);
+			AsnType p = CreateIntegerPos (publicKey.P);
+			AsnType q = CreateIntegerPos (publicKey.Q);
+			AsnType g = CreateIntegerPos (publicKey.G);
 
 			// Sequence - DSA-Params
-			AsnType dssParams = CreateSequence(new[] {p, q, g});
+			AsnType dssParams = CreateSequence (new[] { p, q, g });
 
 			// OID - packed 1.2.840.10040.4.1
 			//   { 0x2A, 0x86, 0x48, 0xCE, 0x38, 0x04, 0x01 }
-			AsnType oid = CreateOid("1.2.840.10040.4.1");
+			AsnType oid = CreateOid ("1.2.840.10040.4.1");
 
 			// Sequence
-			AsnType algorithmID = CreateSequence(new[] {oid, dssParams});
+			AsnType algorithmID = CreateSequence (new[] { oid, dssParams });
 
 			// Public Key Y
-			AsnType y = CreateIntegerPos(publicKey.Y);
-			AsnType key = CreateBitString(y);
+			AsnType y = CreateIntegerPos (publicKey.Y);
+			AsnType key = CreateBitString (y);
 
 			// Sequence 'A'
 			AsnType publicKeyInfo =
-				CreateSequence(new[] {algorithmID, key});
+				CreateSequence (new[] { algorithmID, key });
 
-			return new AsnMessage(publicKeyInfo.GetBytes(), "X.509");
+			return new AsnMessage (publicKeyInfo.GetBytes (), "X.509");
 		}
-
 		// PublicKeyInfo (X.509 compatible) message
 		/// <summary>
 		/// Returns the AsnMessage representing the X.509 PublicKeyInfo.
@@ -124,7 +121,7 @@ namespace Net
 		/// <seealso cref="PrivateKeyToPKCS8(DSAParameters)"/>
 		/// <seealso cref="PrivateKeyToPKCS8(RSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(DSAParameters)"/>
-		public static AsnMessage PublicKeyToX509(RSAParameters publicKey)
+		public static AsnMessage PublicKeyToX509 (RSAParameters publicKey)
 		{
 			// Value Type cannot be null
 			// Debug.Assert(null != publicKey);
@@ -142,22 +139,21 @@ namespace Net
 
 			// OID - packed 1.2.840.113549.1.1.1
 			//   { 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01 }
-			AsnType oid = CreateOid("1.2.840.113549.1.1.1");
+			AsnType oid = CreateOid ("1.2.840.113549.1.1.1");
 			AsnType algorithmID =
-				CreateSequence(new[] {oid, CreateNull()});
+				CreateSequence (new[] { oid, CreateNull () });
 
-			AsnType n = CreateIntegerPos(publicKey.Modulus);
-			AsnType e = CreateIntegerPos(publicKey.Exponent);
-			AsnType key = CreateBitString(
-				CreateSequence(new[] {n, e})
-				);
+			AsnType n = CreateIntegerPos (publicKey.Modulus);
+			AsnType e = CreateIntegerPos (publicKey.Exponent);
+			AsnType key = CreateBitString (
+				              CreateSequence (new[] { n, e })
+			              );
 
 			AsnType publicKeyInfo =
-				CreateSequence(new[] {algorithmID, key});
+				CreateSequence (new[] { algorithmID, key });
 
-			return new AsnMessage(publicKeyInfo.GetBytes(), "X.509");
+			return new AsnMessage (publicKeyInfo.GetBytes (), "X.509");
 		}
-
 		// PKCS #8, Section 6 (PrivateKeyInfo) message
 		// !!!!!!!!!!!!!!! Unencrypted !!!!!!!!!!!!!!!
 		/// <summary>
@@ -170,7 +166,7 @@ namespace Net
 		/// <seealso cref="PrivateKeyToPKCS8(RSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(DSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(RSAParameters)"/>
-		public static AsnMessage PrivateKeyToPKCS8(DSAParameters privateKey)
+		public static AsnMessage PrivateKeyToPKCS8 (DSAParameters privateKey)
 		{
 			// Value Type cannot be null
 			// Debug.Assert(null != privateKey);
@@ -189,33 +185,32 @@ namespace Net
             * */
 
 			// Version - 0 (v1998)
-			AsnType version = CreateInteger(Zero);
+			AsnType version = CreateInteger (Zero);
 
 			// Domain Parameters
-			AsnType p = CreateIntegerPos(privateKey.P);
-			AsnType q = CreateIntegerPos(privateKey.Q);
-			AsnType g = CreateIntegerPos(privateKey.G);
+			AsnType p = CreateIntegerPos (privateKey.P);
+			AsnType q = CreateIntegerPos (privateKey.Q);
+			AsnType g = CreateIntegerPos (privateKey.G);
 
-			AsnType dssParams = CreateSequence(new[] {p, q, g});
+			AsnType dssParams = CreateSequence (new[] { p, q, g });
 
 			// OID - packed 1.2.840.10040.4.1
 			//   { 0x2A, 0x86, 0x48, 0xCE, 0x38, 0x04, 0x01 }
-			AsnType oid = CreateOid("1.2.840.10040.4.1");
+			AsnType oid = CreateOid ("1.2.840.10040.4.1");
 
 			// AlgorithmIdentifier
-			AsnType algorithmID = CreateSequence(new[] {oid, dssParams});
+			AsnType algorithmID = CreateSequence (new[] { oid, dssParams });
 
 			// Private Key X
-			AsnType x = CreateIntegerPos(privateKey.X);
-			AsnType key = CreateOctetString(x);
+			AsnType x = CreateIntegerPos (privateKey.X);
+			AsnType key = CreateOctetString (x);
 
 			// Sequence
 			AsnType privateKeyInfo =
-				CreateSequence(new[] {version, algorithmID, key});
+				CreateSequence (new[] { version, algorithmID, key });
 
-			return new AsnMessage(privateKeyInfo.GetBytes(), "PKCS#8");
+			return new AsnMessage (privateKeyInfo.GetBytes (), "PKCS#8");
 		}
-
 		// PKCS #8, Section 6 (PrivateKeyInfo) message
 		// !!!!!!!!!!!!!!! Unencrypted !!!!!!!!!!!!!!!
 		/// <summary>
@@ -228,7 +223,7 @@ namespace Net
 		/// <seealso cref="PrivateKeyToPKCS8(DSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(DSAParameters)"/>
 		/// <seealso cref="PublicKeyToX509(RSAParameters)"/>
-		public static AsnMessage PrivateKeyToPKCS8(RSAParameters privateKey)
+		public static AsnMessage PrivateKeyToPKCS8 (RSAParameters privateKey)
 		{
 			// Value Type cannot be null
 			// Debug.Assert(null != privateKey);
@@ -252,33 +247,36 @@ namespace Net
             *       +- INTEGER(Inv Q)
             * */
 
-			AsnType n = CreateIntegerPos(privateKey.Modulus);
-			AsnType e = CreateIntegerPos(privateKey.Exponent);
-			AsnType d = CreateIntegerPos(privateKey.D);
-			AsnType p = CreateIntegerPos(privateKey.P);
-			AsnType q = CreateIntegerPos(privateKey.Q);
-			AsnType dp = CreateIntegerPos(privateKey.DP);
-			AsnType dq = CreateIntegerPos(privateKey.DQ);
-			AsnType iq = CreateIntegerPos(privateKey.InverseQ);
+			AsnType n = CreateIntegerPos (privateKey.Modulus);
+			AsnType e = CreateIntegerPos (privateKey.Exponent);
+			AsnType d = CreateIntegerPos (privateKey.D);
+			AsnType p = CreateIntegerPos (privateKey.P);
+			AsnType q = CreateIntegerPos (privateKey.Q);
+			AsnType dp = CreateIntegerPos (privateKey.DP);
+			AsnType dq = CreateIntegerPos (privateKey.DQ);
+			AsnType iq = CreateIntegerPos (privateKey.InverseQ);
 
 			// Version - 0 (v1998)
-			AsnType version = CreateInteger(new byte[] {0});
+			AsnType version = CreateInteger (new byte[] { 0 });
 
 			// octstring = OCTETSTRING(SEQUENCE(INTEGER(0)INTEGER(N)...))
-			AsnType key = CreateOctetString(
-				CreateSequence(new[] {version, n, e, d, p, q, dp, dq, iq})
-				);
+			AsnType key = CreateOctetString (
+				              CreateSequence (new[] { version, n, e, d, p, q, dp, dq, iq })
+			              );
 
 			// OID - packed 1.2.840.113549.1.1.1
 			//   { 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01 }
-			AsnType algorithmID = CreateSequence(new[] {CreateOid("1.2.840.113549.1.1.1"), CreateNull()}
-			);
+			AsnType algorithmID = CreateSequence (new[] {
+				CreateOid ("1.2.840.113549.1.1.1"),
+				CreateNull ()
+			}
+			                      );
 
 			// PrivateKeyInfo
 			AsnType privateKeyInfo =
-				CreateSequence(new[] {version, algorithmID, key});
+				CreateSequence (new[] { version, algorithmID, key });
 
-			return new AsnMessage(privateKeyInfo.GetBytes(), "PKCS#8");
+			return new AsnMessage (privateKeyInfo.GetBytes (), "PKCS#8");
 		}
 
 		/// <summary>
@@ -299,19 +297,18 @@ namespace Net
 		/// <seealso cref="CreateSequence(AsnType[])"/>
 		/// <seealso cref="CreateSequenceOf(AsnType)"/>
 		/// <seealso cref="CreateSequenceOf(AsnType[])"/>
-		public static AsnType CreateSequence(AsnType value)
+		public static AsnType CreateSequence (AsnType value)
 		{
 			// Should be at least 1...
-			Debug.Assert(!IsEmpty(value));
+			Debug.Assert (!IsEmpty (value));
 
 			// One or more required
-			if (IsEmpty(value))
-			{
-				throw new ArgumentException("A sequence requires at least one value.");
+			if (IsEmpty (value)) {
+				throw new ArgumentException ("A sequence requires at least one value.");
 			}
 
 			// Sequence: Tag 0x30 (16, Universal, Constructed)
-			return new AsnType(0x30, value.GetBytes());
+			return new AsnType (0x30, value.GetBytes ());
 		}
 
 		/// <summary>
@@ -332,19 +329,18 @@ namespace Net
 		/// <seealso cref="CreateSequence(AsnType[])"/>
 		/// <seealso cref="CreateSequenceOf(AsnType)"/>
 		/// <seealso cref="CreateSequenceOf(AsnType[])"/>
-		public static AsnType CreateSequence(AsnType[] values)
+		public static AsnType CreateSequence (AsnType[] values)
 		{
 			// Should be at least 1...
-			Debug.Assert(!IsEmpty(values));
+			Debug.Assert (!IsEmpty (values));
 
 			// One or more required
-			if (IsEmpty(values))
-			{
-				throw new ArgumentException("A sequence requires at least one value.");
+			if (IsEmpty (values)) {
+				throw new ArgumentException ("A sequence requires at least one value.");
 			}
 
 			// Sequence: Tag 0x30 (16, Universal, Constructed)
-			return new AsnType((0x10 | 0x20), Concatenate(values));
+			return new AsnType ((0x10 | 0x20), Concatenate (values));
 		}
 
 		/// <summary>
@@ -365,16 +361,15 @@ namespace Net
 		/// <seealso cref="CreateSequence(AsnType[])"/>
 		/// <seealso cref="CreateSequenceOf(AsnType)"/>
 		/// <seealso cref="CreateSequenceOf(AsnType[])"/>
-		public static AsnType CreateSequenceOf(AsnType value)
+		public static AsnType CreateSequenceOf (AsnType value)
 		{
 			// From the ASN.1 Mailing List
-			if (IsEmpty(value))
-			{
-				return new AsnType(0x30, Empty);
+			if (IsEmpty (value)) {
+				return new AsnType (0x30, Empty);
 			}
 
 			// Sequence: Tag 0x30 (16, Universal, Constructed)
-			return new AsnType(0x30, value.GetBytes());
+			return new AsnType (0x30, value.GetBytes ());
 		}
 
 		/// <summary>
@@ -395,16 +390,15 @@ namespace Net
 		/// <seealso cref="CreateSequence(AsnType[])"/>
 		/// <seealso cref="CreateSequenceOf(AsnType)"/>
 		/// <seealso cref="CreateSequenceOf(AsnType[])"/>
-		public static AsnType CreateSequenceOf(AsnType[] values)
+		public static AsnType CreateSequenceOf (AsnType[] values)
 		{
 			// From the ASN.1 Mailing List
-			if (IsEmpty(values))
-			{
-				return new AsnType(0x30, Empty);
+			if (IsEmpty (values)) {
+				return new AsnType (0x30, Empty);
 			}
 
 			// Sequence: Tag 0x30 (16, Universal, Constructed)
-			return new AsnType(0x30, Concatenate(values));
+			return new AsnType (0x30, Concatenate (values));
 		}
 
 		/// <summary>
@@ -425,10 +419,10 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateBitString(byte[] octets)
+		public static AsnType CreateBitString (byte[] octets)
 		{
 			// BitString: Tag 0x03 (3, Universal, Primitive)
-			return CreateBitString(octets, 0);
+			return CreateBitString (octets, 0);
 		}
 
 		/// <summary>
@@ -454,22 +448,20 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateBitString(byte[] octets, uint unusedBits)
+		public static AsnType CreateBitString (byte[] octets, uint unusedBits)
 		{
-			if (IsEmpty(octets))
-			{
+			if (IsEmpty (octets)) {
 				// Empty octet string
-				return new AsnType(0x03, Empty);
+				return new AsnType (0x03, Empty);
 			}
 
-			if (!(unusedBits < 8))
-			{
-				throw new ArgumentException("Unused bits must be less than 8.");
+			if (!(unusedBits < 8)) {
+				throw new ArgumentException ("Unused bits must be less than 8.");
 			}
 
-			byte[] b = Concatenate(new[] {(byte)unusedBits}, octets);
+			byte[] b = Concatenate (new[] { (byte)unusedBits }, octets);
 			// BitString: Tag 0x03 (3, Universal, Primitive)
-			return new AsnType(0x03, b);
+			return new AsnType (0x03, b);
 		}
 
 		/// <summary>
@@ -489,15 +481,14 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateBitString(AsnType value)
+		public static AsnType CreateBitString (AsnType value)
 		{
-			if (IsEmpty(value))
-			{
-				return new AsnType(0x03, Empty);
+			if (IsEmpty (value)) {
+				return new AsnType (0x03, Empty);
 			}
 
 			// BitString: Tag 0x03 (3, Universal, Primitive)
-			return CreateBitString(value.GetBytes(), 0x00);
+			return CreateBitString (value.GetBytes (), 0x00);
 		}
 
 		/// <summary>
@@ -517,15 +508,14 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateBitString(AsnType[] values)
+		public static AsnType CreateBitString (AsnType[] values)
 		{
-			if (IsEmpty(values))
-			{
-				return new AsnType(0x03, Empty);
+			if (IsEmpty (values)) {
+				return new AsnType (0x03, Empty);
 			}
 
 			// BitString: Tag 0x03 (3, Universal, Primitive)
-			return CreateBitString(Concatenate(values), 0x00);
+			return CreateBitString (Concatenate (values), 0x00);
 		}
 
 		/// <summary>
@@ -549,56 +539,46 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateBitString(String value)
+		public static AsnType CreateBitString (String value)
 		{
-			if (IsEmpty(value))
-			{
-				return CreateBitString(Empty);
+			if (IsEmpty (value)) {
+				return CreateBitString (Empty);
 			}
 
 			// Any unused bits?
 			int lstrlen = value.Length;
-			int unusedBits = 8 - (lstrlen%8);
-			if (8 == unusedBits)
-			{
+			int unusedBits = 8 - (lstrlen % 8);
+			if (8 == unusedBits) {
 				unusedBits = 0;
 			}
 
-			for (int i = 0; i < unusedBits; i++)
-			{
+			for (int i = 0; i < unusedBits; i++) {
 				value += "0";
 			}
 
 			// Determine number of octets
-			int loctlen = (lstrlen + 7)/8;
+			int loctlen = (lstrlen + 7) / 8;
 
-			var octets = new List<byte>();
-			for (int i = 0; i < loctlen; i++)
-			{
-				String s = value.Substring(i*8, 8);
+			var octets = new List<byte> ();
+			for (int i = 0; i < loctlen; i++) {
+				String s = value.Substring (i * 8, 8);
 				byte b = 0x00;
 
-				try
-				{
-					b = Convert.ToByte(s, 2);
-				}
-
-				catch (FormatException /*e*/)
-				{
+				try {
+					b = Convert.ToByte (s, 2);
+				} catch (FormatException /*e*/) {
 					unusedBits = 0;
 					break;
-				}
-				catch (OverflowException /*e*/)
-				{
+				} catch (OverflowException /*e*/) {
 					unusedBits = 0;
 					break;
 				}
 
-				octets.Add(b);
+				octets.Add (b);
 			}
 
 			// BitString: Tag 0x03 (3, Universal, Primitive)
-			return CreateBitString(octets.ToArray(), (uint)unusedBits);
+			return CreateBitString (octets.ToArray (), (uint)unusedBits);
 		}
 
 		/// <summary>
@@ -617,16 +597,15 @@ namespace Net
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateOctetString(byte[] value)
+		public static AsnType CreateOctetString (byte[] value)
 		{
-			if (IsEmpty(value))
-			{
+			if (IsEmpty (value)) {
 				// Empty octet string
-				return new AsnType(0x04, Empty);
+				return new AsnType (0x04, Empty);
 			}
 
 			// OctetString: Tag 0x04 (4, Universal, Primitive)
-			return new AsnType(0x04, value);
+			return new AsnType (0x04, value);
 		}
 
 		/// <summary>
@@ -644,16 +623,15 @@ namespace Net
 		/// <seealso cref="CreateBitString(String)"/>
 		/// <seealso cref="CreateOctetString(byte[])"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateOctetString(AsnType value)
+		public static AsnType CreateOctetString (AsnType value)
 		{
-			if (IsEmpty(value))
-			{
+			if (IsEmpty (value)) {
 				// Empty octet string
-				return new AsnType(0x04, 0x00);
+				return new AsnType (0x04, 0x00);
 			}
 
 			// OctetString: Tag 0x04 (4, Universal, Primitive)
-			return new AsnType(0x04, value.GetBytes());
+			return new AsnType (0x04, value.GetBytes ());
 		}
 
 		/// <summary>
@@ -672,16 +650,15 @@ namespace Net
 		/// <seealso cref="CreateOctetString(byte[])"/>
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(String)"/>
-		public static AsnType CreateOctetString(AsnType[] values)
+		public static AsnType CreateOctetString (AsnType[] values)
 		{
-			if (IsEmpty(values))
-			{
+			if (IsEmpty (values)) {
 				// Empty octet string
-				return new AsnType(0x04, 0x00);
+				return new AsnType (0x04, 0x00);
 			}
 
 			// OctetString: Tag 0x04 (4, Universal, Primitive)
-			return new AsnType(0x04, Concatenate(values));
+			return new AsnType (0x04, Concatenate (values));
 		}
 
 		/// <summary>
@@ -705,40 +682,33 @@ namespace Net
 		/// <seealso cref="CreateOctetString(byte[])"/>
 		/// <seealso cref="CreateOctetString(AsnType)"/>
 		/// <seealso cref="CreateOctetString(AsnType[])"/>
-		public static AsnType CreateOctetString(String value)
+		public static AsnType CreateOctetString (String value)
 		{
-			if (IsEmpty(value))
-			{
-				return CreateOctetString(Empty);
+			if (IsEmpty (value)) {
+				return CreateOctetString (Empty);
 			}
 
 			// Determine number of octets
-			int len = (value.Length + 255)/256;
+			int len = (value.Length + 255) / 256;
 
-			var octets = new List<byte>();
-			for (int i = 0; i < len; i++)
-			{
-				String s = value.Substring(i*2, 2);
+			var octets = new List<byte> ();
+			for (int i = 0; i < len; i++) {
+				String s = value.Substring (i * 2, 2);
 				byte b = 0x00;
 
-				try
-				{
-					b = Convert.ToByte(s, 16);
-				}
-				catch (FormatException /*e*/)
-				{
+				try {
+					b = Convert.ToByte (s, 16);
+				} catch (FormatException /*e*/) {
 					break;
-				}
-				catch (OverflowException /*e*/)
-				{
+				} catch (OverflowException /*e*/) {
 					break;
 				}
 
-				octets.Add(b);
+				octets.Add (b);
 			}
 
 			// OctetString: Tag 0x04 (4, Universal, Primitive)
-			return CreateOctetString(octets.ToArray());
+			return CreateOctetString (octets.ToArray ());
 		}
 
 		/// <summary>
@@ -763,17 +733,16 @@ namespace Net
 		/// </example>
 		/// <seealso cref="CreateIntegerPos"/>
 		/// <seealso cref="CreateIntegerNeg"/>
-		public static AsnType CreateInteger(byte[] value)
+		public static AsnType CreateInteger (byte[] value)
 		{
 			// Is it better to add a '0', or silently
 			//   drop the Integer? Dropping integers
 			//   is probably not te best choice...
-			if (IsEmpty(value))
-			{
-				return CreateInteger(Zero);
+			if (IsEmpty (value)) {
+				return CreateInteger (Zero);
 			}
 
-			return new AsnType(0x02, value);
+			return new AsnType (0x02, value);
 		}
 
 		/// <summary>
@@ -801,31 +770,27 @@ namespace Net
 		/// </example>
 		/// <seealso cref="CreateInteger"/>
 		/// <seealso cref="CreateIntegerNeg"/>
-		public static AsnType CreateIntegerPos(byte[] value)
+		public static AsnType CreateIntegerPos (byte[] value)
 		{
-			byte[] i = null, d = Duplicate(value);
+			byte[] i = null, d = Duplicate (value);
 
-			if (IsEmpty(d))
-			{
+			if (IsEmpty (d)) {
 				d = Zero;
 			}
 
 			// Mediate the 2's compliment representation.
 			// If the first byte has its high bit set, we will
 			// add the additional byte of 0x00
-			if (d.Length > 0 && d[0] > 0x7F)
-			{
+			if (d.Length > 0 && d [0] > 0x7F) {
 				i = new byte[d.Length + 1];
-				i[0] = 0x00;
-				Array.Copy(d, 0, i, 1, value.Length);
-			}
-			else
-			{
+				i [0] = 0x00;
+				Array.Copy (d, 0, i, 1, value.Length);
+			} else {
 				i = d;
 			}
 
 			// Integer: Tag 0x02 (2, Universal, Primitive)
-			return CreateInteger(i);
+			return CreateInteger (i);
 		}
 
 		/// <summary>
@@ -870,21 +835,19 @@ namespace Net
 		/// </example>
 		/// <seealso cref="CreateInteger"/>
 		/// <seealso cref="CreateIntegerPos"/>
-		public static AsnType CreateIntegerNeg(byte[] value)
+		public static AsnType CreateIntegerNeg (byte[] value)
 		{
 			// Is it better to add a '0', or silently
 			//   drop the Integer? Dropping integers
 			//   is probably not te best choice...
-			if (IsEmpty(value))
-			{
-				return CreateInteger(Zero);
+			if (IsEmpty (value)) {
+				return CreateInteger (Zero);
 			}
 
 			// No Trimming
 			// The byte[] may be that way for a reason
-			if (IsZero(value))
-			{
-				return CreateInteger(value);
+			if (IsZero (value)) {
+				return CreateInteger (value);
 			}
 
 			//
@@ -892,17 +855,15 @@ namespace Net
 			//
 
 			// Is this integer already negative?
-			if (value[0] >= 0x80)
-				// Pass through with no modifications
-			{
-				return CreateInteger(value);
+			if (value [0] >= 0x80) {				// Pass through with no modifications
+				return CreateInteger (value);
 			}
 
 			// No need to Duplicate - Compliment2s
 			// performs the action
-			byte[] c = Compliment2S(value);
+			byte[] c = Compliment2S (value);
 
-			return CreateInteger(c);
+			return CreateInteger (c);
 		}
 
 		/// <summary>
@@ -910,9 +871,9 @@ namespace Net
 		/// </summary>
 		/// <returns>Returns the AsnType representing an ASN.1
 		/// encoded null.</returns>
-		public static AsnType CreateNull()
+		public static AsnType CreateNull ()
 		{
-			return new AsnType(0x05, new byte[] {0x00});
+			return new AsnType (0x05, new byte[] { 0x00 });
 		}
 
 		/// <summary>
@@ -921,29 +882,25 @@ namespace Net
 		/// </summary>
 		/// <param name="octets">An array of octets to trim.</param>
 		/// <returns>A byte[] with leading 0x00 octets removed.</returns>
-		public static byte[] TrimStart(byte[] octets)
+		public static byte[] TrimStart (byte[] octets)
 		{
-			if (IsEmpty(octets) || IsZero(octets))
-			{
-				return new byte[] {};
+			if (IsEmpty (octets) || IsZero (octets)) {
+				return new byte[] { };
 			}
 
-			byte[] d = Duplicate(octets);
+			byte[] d = Duplicate (octets);
 
 			// Position of the first non-zero value
 			int pos = 0;
-			foreach (byte b in d)
-			{
-				if (0 != b)
-				{
+			foreach (byte b in d) {
+				if (0 != b) {
 					break;
 				}
 				pos++;
 			}
 
 			// Nothing to trim
-			if (pos == d.Length)
-			{
+			if (pos == d.Length) {
 				return octets;
 			}
 
@@ -951,7 +908,7 @@ namespace Net
 			var t = new byte[d.Length - pos];
 
 			// Copy
-			Array.Copy(d, pos, t, 0, t.Length);
+			Array.Copy (d, pos, t, 0, t.Length);
 
 			return t;
 		}
@@ -962,20 +919,19 @@ namespace Net
 		/// </summary>
 		/// <param name="octets">An array of octets to trim.</param>
 		/// <returns>A byte[] with trailing 0x00 octets removed.</returns>
-		public static byte[] TrimEnd(byte[] octets)
+		public static byte[] TrimEnd (byte[] octets)
 		{
-			if (IsEmpty(octets) || IsZero(octets))
-			{
+			if (IsEmpty (octets) || IsZero (octets)) {
 				return Empty;
 			}
 
-			byte[] d = Duplicate(octets);
+			byte[] d = Duplicate (octets);
 
-			Array.Reverse(d);
+			Array.Reverse (d);
 
-			d = TrimStart(d);
+			d = TrimStart (d);
 
-			Array.Reverse(d);
+			Array.Reverse (d);
 
 			return d;
 		}
@@ -995,46 +951,39 @@ namespace Net
 		/// <code>AsnType oid = CreateOid("1.2.840.113549.1.1.1")</code>
 		/// </example>
 		/// <seealso cref="CreateOid(byte[])"/>
-		public static AsnType CreateOid(String value)
+		public static AsnType CreateOid (String value)
 		{
 			// Punt?
-			if (IsEmpty(value))
+			if (IsEmpty (value))
 				return null;
 
-			String[] tokens = value.Split(new[] {' ', '.'});
+			String[] tokens = value.Split (new[] { ' ', '.' });
 
 			// Punt?
-			if (IsEmpty(tokens))
+			if (IsEmpty (tokens))
 				return null;
 
 			// Parsing/Manipulation of the arc value
 			UInt64 a = 0;
 
 			// One or more strings are available
-			var arcs = new List<UInt64>();
+			var arcs = new List<UInt64> ();
 
-			foreach (String t in tokens)
-			{
+			foreach (String t in tokens) {
 				// No empty or ill-formed strings...
-				if (t.Length == 0)
-				{
+				if (t.Length == 0) {
 					break;
 				}
 
-				try
-				{
-					a = Convert.ToUInt64(t, CultureInfo.InvariantCulture);
-				}
-				catch (FormatException /*e*/)
-				{
+				try {
+					a = Convert.ToUInt64 (t, CultureInfo.InvariantCulture);
+				} catch (FormatException /*e*/) {
 					break;
-				}
-				catch (OverflowException /*e*/)
-				{
+				} catch (OverflowException /*e*/) {
 					break;
 				}
 
-				arcs.Add(a);
+				arcs.Add (a);
 			}
 
 			// Punt?
@@ -1042,59 +991,54 @@ namespace Net
 				return null;
 
 			// Octets to be returned to caller
-			var octets = new List<byte>();
+			var octets = new List<byte> ();
 
 			// Guard the case of a small list
 			// The list has at least 1 item...    
-			if (arcs.Count >= 1)
-			{
-				a = arcs[0]*40;
+			if (arcs.Count >= 1) {
+				a = arcs [0] * 40;
 			}
-			if (arcs.Count >= 2)
-			{
-				a += arcs[1];
+			if (arcs.Count >= 2) {
+				a += arcs [1];
 			}
-			octets.Add((byte)(a));
+			octets.Add ((byte)(a));
 
 			// Add remaining arcs (subidentifiers)
-			for (int i = 2; i < arcs.Count; i++)
-			{
+			for (int i = 2; i < arcs.Count; i++) {
 				// Scratch list builder for this arc
-				var temp = new List<byte>();
+				var temp = new List<byte> ();
 
 				// The current arc (subidentifier)
-				UInt64 arc = arcs[i];
+				UInt64 arc = arcs [i];
 
 				// Build the arc (subidentifier) byte array
 				// The array is built in reverse (LSB to MSB).
-				do
-				{
+				do {
 					// Each entry is formed from the low 7 bits (0x7F).
 					// Set high bit of all entries (0x80) per X.680. We
 					// will unset the high bit of the final byte later.
-					temp.Add((byte)(0x80 | (arc & 0x7F)));
+					temp.Add ((byte)(0x80 | (arc & 0x7F)));
 					arc >>= 7;
 				} while (0 != arc);
 
 				// Grab resulting array. Because of the do/while,
 				// there is at least one value in the array.
-				byte[] t = temp.ToArray();
+				byte[] t = temp.ToArray ();
 
 				// Unset high bit of byte t[0]
 				// t[0] will be LSB after the array is reversed.
-				t[0] = (byte)(0x7F & t[0]);
+				t [0] = (byte)(0x7F & t [0]);
 
 				// MSB first...
-				Array.Reverse(t);
+				Array.Reverse (t);
 
 				// Add to the resulting array
-				foreach (byte b in t)
-				{
-					octets.Add(b);
+				foreach (byte b in t) {
+					octets.Add (b);
 				}
 			}
 
-			return CreateOid(octets.ToArray());
+			return CreateOid (octets.ToArray ());
 		}
 
 		/// <summary>
@@ -1114,101 +1058,87 @@ namespace Net
 		/// AsnType = CreateOid(rsa)</code>
 		/// </example>
 		/// <seealso cref="CreateOid(String)"/>
-		public static AsnType CreateOid(byte[] value)
+		public static AsnType CreateOid (byte[] value)
 		{
 			// Punt...
-			if (IsEmpty(value))
-			{
+			if (IsEmpty (value)) {
 				return null;
 			}
 
 			// OID: Tag 0x06 (6, Universal, Primitive)
-			return new AsnType(0x06, value);
+			return new AsnType (0x06, value);
 		}
 
-		private static byte[] Compliment2S(byte[] value)
+		private static byte[] Compliment2S (byte[] value)
 		{
-			if (IsEmpty(value))
-			{
+			if (IsEmpty (value)) {
 				return Empty;
 			}
 
 			// 2s Compliment of 0 is 0
-			if (IsZero(value))
-			{
-				return Duplicate(value);
+			if (IsZero (value)) {
+				return Duplicate (value);
 			}
 
 			// Make a copy of octet array
-			byte[] d = Duplicate(value);
+			byte[] d = Duplicate (value);
 
 			int carry = 1;
-			for (int i = d.Length - 1; i >= 0; i--)
-			{
+			for (int i = d.Length - 1; i >= 0; i--) {
 				// Compliment
-				d[i] = (byte)~d[i];
+				d [i] = (byte)~d [i];
 
 				// Add
-				int j = d[i] + carry;
+				int j = d [i] + carry;
 
 				// Write Back
-				d[i] = (byte)(j & 0xFF);
+				d [i] = (byte)(j & 0xFF);
 
 				// Determine Next Carry
-				if (0x100 == (j & 0x100))
-				{
+				if (0x100 == (j & 0x100)) {
 					carry = 1;
-				}
-				else
-				{
+				} else {
 					carry = 0;
 				}
 			}
 
 			// Carry Array (we may need to carry out of 'd'
 			byte[] c = null;
-			if (1 == carry)
-			{
+			if (1 == carry) {
 				c = new byte[d.Length + 1];
 
 				// Sign Extend....
-				c[0] = 0xFF;
+				c [0] = 0xFF;
 
-				Array.Copy(d, 0, c, 1, d.Length);
-			}
-			else
-			{
+				Array.Copy (d, 0, c, 1, d.Length);
+			} else {
 				c = d;
 			}
 
 			return c;
 		}
 
-		private static byte[] Concatenate(AsnType[] values)
+		private static byte[] Concatenate (AsnType[] values)
 		{
 			// Nothing in, nothing out
-			if (IsEmpty(values))
-				return new byte[] {};
+			if (IsEmpty (values))
+				return new byte[] { };
 
 			int length = 0;
-			foreach (AsnType t in values)
-			{
-				if (null != t)
-				{
-					length += t.GetBytes().Length;
+			foreach (AsnType t in values) {
+				if (null != t) {
+					length += t.GetBytes ().Length;
 				}
 			}
 
 			var cated = new byte[length];
 
 			int current = 0;
-			foreach (AsnType t in values)
-			{
-				if (null != t)
-				{
-					byte[] b = t.GetBytes();
+			foreach (AsnType t in values) {
+				if (null != t) {
+					byte[] b = t.GetBytes ();
 
-					Array.Copy(b, 0, cated, current, b.Length);
+					Array.Copy (b, 0, cated, current, b.Length);
 					current += b.Length;
 				}
 			}
@@ -1216,22 +1146,20 @@ namespace Net
 			return cated;
 		}
 
-		private static byte[] Concatenate(byte[] first, byte[] second)
+		private static byte[] Concatenate (byte[] first, byte[] second)
 		{
-			return Concatenate(new[] {first, second});
+			return Concatenate (new[] { first, second });
 		}
 
-		private static byte[] Concatenate(byte[][] values)
+		private static byte[] Concatenate (byte[][] values)
 		{
 			// Nothing in, nothing out
-			if (IsEmpty(values))
-				return new byte[] {};
+			if (IsEmpty (values))
+				return new byte[] { };
 
 			int length = 0;
-			foreach (var b in values)
-			{
-				if (null != b)
-				{
+			foreach (var b in values) {
+				if (null != b) {
 					length += b.Length;
 				}
 			}
@@ -1239,11 +1167,9 @@ namespace Net
 			var cated = new byte[length];
 
 			int current = 0;
-			foreach (var b in values)
-			{
-				if (null != b)
-				{
-					Array.Copy(b, 0, cated, current, b.Length);
+			foreach (var b in values) {
+				if (null != b) {
+					Array.Copy (b, 0, cated, current, b.Length);
 					current += b.Length;
 				}
 			}
@@ -1251,31 +1177,27 @@ namespace Net
 			return cated;
 		}
 
-		private static byte[] Duplicate(byte[] b)
+		private static byte[] Duplicate (byte[] b)
 		{
-			if (IsEmpty(b))
-			{
+			if (IsEmpty (b)) {
 				return Empty;
 			}
 
 			var d = new byte[b.Length];
-			Array.Copy(b, d, b.Length);
+			Array.Copy (b, d, b.Length);
 
 			return d;
 		}
 
-		private static bool IsZero(byte[] octets)
+		private static bool IsZero (byte[] octets)
 		{
-			if (IsEmpty(octets))
-			{
+			if (IsEmpty (octets)) {
 				return false;
 			}
 
 			bool allZeros = true;
-			for (int i = 0; i < octets.Length; i++)
-			{
-				if (0 != octets[i])
-				{
+			for (int i = 0; i < octets.Length; i++) {
+				if (0 != octets [i]) {
 					allZeros = false;
 					break;
 				}
@@ -1283,27 +1205,25 @@ namespace Net
 			return allZeros;
 		}
 
-		private static bool IsEmpty(byte[] octets)
+		private static bool IsEmpty (byte[] octets)
 		{
-			if (null == octets || 0 == octets.Length)
-			{
+			if (null == octets || 0 == octets.Length) {
 				return true;
 			}
 
 			return false;
 		}
 
-		private static bool IsEmpty(String s)
+		private static bool IsEmpty (String s)
 		{
-			if (null == s || 0 == s.Length)
-			{
+			if (null == s || 0 == s.Length) {
 				return true;
 			}
 
 			return false;
 		}
 
-		private static bool IsEmpty(String[] strings)
+		private static bool IsEmpty (String[] strings)
 		{
 			if (null == strings || 0 == strings.Length)
 				return true;
@@ -1311,17 +1231,16 @@ namespace Net
 			return false;
 		}
 
-		private static bool IsEmpty(AsnType value)
+		private static bool IsEmpty (AsnType value)
 		{
-			if (null == value)
-			{
+			if (null == value) {
 				return true;
 			}
 
 			return false;
 		}
 
-		private static bool IsEmpty(AsnType[] values)
+		private static bool IsEmpty (AsnType[] values)
 		{
 			if (null == values || 0 == values.Length)
 				return true;
@@ -1329,7 +1248,7 @@ namespace Net
 			return false;
 		}
 
-		private static bool IsEmpty(byte[][] arrays)
+		private static bool IsEmpty (byte[][] arrays)
 		{
 			if (null == arrays || 0 == arrays.Length)
 				return true;
@@ -1344,18 +1263,15 @@ namespace Net
 			private readonly String mFormat;
 			private readonly byte[] mOctets;
 
-			public AsnMessage(byte[] octets, String format)
+			public AsnMessage (byte[] octets, String format)
 			{
 				mOctets = octets;
 				mFormat = format;
 			}
 
-			public int Length
-			{
-				get
-				{
-					if (null == mOctets)
-					{
+			public int Length {
+				get {
+					if (null == mOctets) {
 						return 0;
 					}
 					return mOctets.Length;
@@ -1363,17 +1279,16 @@ namespace Net
 				// set { m_length = value; }
 			}
 
-			public byte[] GetBytes()
+			public byte[] GetBytes ()
 			{
-				if (null == mOctets)
-				{
-					return new byte[] {};
+				if (null == mOctets) {
+					return new byte[] { };
 				}
 
 				return mOctets;
 			}
 
-			public String GetFormat()
+			public String GetFormat ()
 			{
 				return mFormat;
 			}
@@ -1387,46 +1302,40 @@ namespace Net
 		{
 			// Constructors
 			// No default - must specify tag and data
-
 			private readonly byte[] mTag;
 			private byte[] mLength;
 			private byte[] mOctets;
 			private bool mRaw;
 
-			public AsnType(byte tag, byte octet)
+			public AsnType (byte tag, byte octet)
 			{
 				mRaw = false;
-				mTag = new[] {tag};
-				mOctets = new[] {octet};
+				mTag = new[] { tag };
+				mOctets = new[] { octet };
 			}
 
-			public AsnType(byte tag, byte[] octets)
+			public AsnType (byte tag, byte[] octets)
 			{
 				mRaw = false;
-				mTag = new[] {tag};
+				mTag = new[] { tag };
 				mOctets = octets;
 			}
 
-			public AsnType(byte tag, byte[] length, byte[] octets)
+			public AsnType (byte tag, byte[] length, byte[] octets)
 			{
 				mRaw = true;
-				mTag = new[] {tag};
+				mTag = new[] { tag };
 				mLength = length;
 				mOctets = octets;
 			}
 
-			private bool Raw
-			{
+			private bool Raw {
 				get { return mRaw; }
 				set { mRaw = value; }
 			}
-
 			// Setters and Getters
-
-			public byte[] Tag
-			{
-				get
-				{
+			public byte[] Tag {
+				get {
 					if (null == mTag)
 						return Empty;
 					return mTag;
@@ -1434,10 +1343,8 @@ namespace Net
 				// set { m_tag = value; }
 			}
 
-			public byte[] Length
-			{
-				get
-				{
+			public byte[] Length {
+				get {
 					if (null == mLength)
 						return Empty;
 					return mLength;
@@ -1445,59 +1352,51 @@ namespace Net
 				// set { m_length = value; }
 			}
 
-			public byte[] Octets
-			{
-				get
-				{
-					if (null == mOctets)
-					{
+			public byte[] Octets {
+				get {
+					if (null == mOctets) {
 						return Empty;
 					}
 					return mOctets;
 				}
 				set { mOctets = value; }
 			}
-
 			// Methods
-			internal byte[] GetBytes()
+			internal byte[] GetBytes ()
 			{
 				// Created raw by user
 				// return the bytes....
-				if (mRaw)
-				{
-					return Concatenate(
-						new[] {mTag, mLength, mOctets}
+				if (mRaw) {
+					return Concatenate (
+						new[] { mTag, mLength, mOctets }
 					);
 				}
 
-				SetLength();
+				SetLength ();
 
 				// Special case
 				// Null does not use length
-				if (0x05 == mTag[0])
-				{
-					return Concatenate(
-						new[] {mTag, mOctets}
+				if (0x05 == mTag [0]) {
+					return Concatenate (
+						new[] { mTag, mOctets }
 					);
 				}
 
-				return Concatenate(
-					new[] {mTag, mLength, mOctets}
+				return Concatenate (
+					new[] { mTag, mLength, mOctets }
 				);
 			}
 
-			private void SetLength()
+			private void SetLength ()
 			{
-				if (null == mOctets)
-				{
+				if (null == mOctets) {
 					mLength = Zero;
 					return;
 				}
 
 				// Special case
 				// Null does not use length
-				if (0x05 == mTag[0])
-				{
+				if (0x05 == mTag [0]) {
 					mLength = Empty;
 					return;
 				}
@@ -1505,17 +1404,15 @@ namespace Net
 				byte[] length = null;
 
 				// Length: 0 <= l < 0x80
-				if (mOctets.Length < 0x80)
-				{
+				if (mOctets.Length < 0x80) {
 					length = new byte[1];
-					length[0] = (byte)mOctets.Length;
+					length [0] = (byte)mOctets.Length;
 				}
 				// 0x80 < length <= 0xFF
-				else if (mOctets.Length <= 0xFF)
-				{
+				else if (mOctets.Length <= 0xFF) {
 					length = new byte[2];
-					length[0] = 0x81;
-					length[1] = (byte)((mOctets.Length & 0xFF));
+					length [0] = 0x81;
+					length [1] = (byte)((mOctets.Length & 0xFF));
 				}
 
 				//
@@ -1523,57 +1420,52 @@ namespace Net
 				//
 
 				// 0xFF < length <= 0xFFFF
-				else if (mOctets.Length <= 0xFFFF)
-				{
+				else if (mOctets.Length <= 0xFFFF) {
 					length = new byte[3];
-					length[0] = 0x82;
-					length[1] = (byte)((mOctets.Length & 0xFF00) >> 8);
-					length[2] = (byte)((mOctets.Length & 0xFF));
+					length [0] = 0x82;
+					length [1] = (byte)((mOctets.Length & 0xFF00) >> 8);
+					length [2] = (byte)((mOctets.Length & 0xFF));
 				}
 
 				// 0xFFFF < length <= 0xFFFFFF
-				else if (mOctets.Length <= 0xFFFFFF)
-				{
+				else if (mOctets.Length <= 0xFFFFFF) {
 					length = new byte[4];
-					length[0] = 0x83;
-					length[1] = (byte)((mOctets.Length & 0xFF0000) >> 16);
-					length[2] = (byte)((mOctets.Length & 0xFF00) >> 8);
-					length[3] = (byte)((mOctets.Length & 0xFF));
+					length [0] = 0x83;
+					length [1] = (byte)((mOctets.Length & 0xFF0000) >> 16);
+					length [2] = (byte)((mOctets.Length & 0xFF00) >> 8);
+					length [3] = (byte)((mOctets.Length & 0xFF));
 				}
 				// 0xFFFFFF < length <= 0xFFFFFFFF
-				else
-				{
+				else {
 					length = new byte[5];
-					length[0] = 0x84;
-					length[1] = (byte)((mOctets.Length & 0xFF000000) >> 24);
-					length[2] = (byte)((mOctets.Length & 0xFF0000) >> 16);
-					length[3] = (byte)((mOctets.Length & 0xFF00) >> 8);
-					length[4] = (byte)((mOctets.Length & 0xFF));
+					length [0] = 0x84;
+					length [1] = (byte)((mOctets.Length & 0xFF000000) >> 24);
+					length [2] = (byte)((mOctets.Length & 0xFF0000) >> 16);
+					length [3] = (byte)((mOctets.Length & 0xFF00) >> 8);
+					length [4] = (byte)((mOctets.Length & 0xFF));
 				}
 
 				mLength = length;
 			}
 
-			private byte[] Concatenate(byte[][] values)
+			private byte[] Concatenate (byte[][] values)
 			{
 				// Nothing in, nothing out
-				if (IsEmpty(values))
-					return new byte[] {};
+				if (IsEmpty (values))
+					return new byte[] { };
 
 				int length = 0;
-				foreach (var b in values)
-				{
-					if (null != b) length += b.Length;
+				foreach (var b in values) {
+					if (null != b)
+						length += b.Length;
 				}
 
 				var cated = new byte[length];
 
 				int current = 0;
-				foreach (var b in values)
-				{
-					if (null != b)
-					{
-						Array.Copy(b, 0, cated, current, b.Length);
+				foreach (var b in values) {
+					if (null != b) {
+						Array.Copy (b, 0, cated, current, b.Length);
 						current += b.Length;
 					}
 				}
@@ -1589,56 +1481,53 @@ namespace Net
 	{
 		private AsnParser parser;
 
-		public AsnKeyParser(String pathname)
+		public AsnKeyParser (String pathname)
 		{
-			using (BinaryReader reader = new BinaryReader(
-				new FileStream(pathname, FileMode.Open, FileAccess.Read)))
-			{
-				FileInfo info = new FileInfo(pathname);
+			using (BinaryReader reader = new BinaryReader (
+				                             new FileStream (pathname, FileMode.Open, FileAccess.Read))) {
+				FileInfo info = new FileInfo (pathname);
 
-				parser = new AsnParser(reader.ReadBytes((int)info.Length));
+				parser = new AsnParser (reader.ReadBytes ((int)info.Length));
 			}
 		}
 
-		public AsnKeyParser(byte[] data)
+		public AsnKeyParser (byte[] data)
 		{
-			parser = new AsnParser(data);
+			parser = new AsnParser (data);
 		}
 
-		internal static byte[] TrimLeadingZero(byte[] values)
+		internal static byte[] TrimLeadingZero (byte[] values)
 		{
 			byte[] r = null;
-			if ((0x00 == values[0]) && (values.Length > 1))
-			{
+			if ((0x00 == values [0]) && (values.Length > 1)) {
 				r = new byte[values.Length - 1];
-				Array.Copy(values, 1, r, 0, values.Length - 1);
-			}
-			else
-			{
+				Array.Copy (values, 1, r, 0, values.Length - 1);
+			} else {
 				r = new byte[values.Length];
-				Array.Copy(values, r, values.Length);
+				Array.Copy (values, r, values.Length);
 			}
 
 			return r;
 		}
 
-		internal static bool EqualOid(byte[] first, byte[] second)
+		internal static bool EqualOid (byte[] first, byte[] second)
 		{
-			if (first.Length != second.Length)
-			{ return false; }
+			if (first.Length != second.Length) {
+				return false;
+			}
 
-			for (int i = 0; i < first.Length; i++)
-			{
-				if (first[i] != second[i])
-				{ return false; }
+			for (int i = 0; i < first.Length; i++) {
+				if (first [i] != second [i]) {
+					return false;
+				}
 			}
 
 			return true;
 		}
 
-		public RSAParameters ParseRSAPublicKey()
+		public RSAParameters ParseRSAPublicKey ()
 		{
-			RSAParameters parameters = new RSAParameters();
+			RSAParameters parameters = new RSAParameters ();
 
 			// Current value
 			byte[] value = null;
@@ -1647,364 +1536,345 @@ namespace Net
 			int length = 0;
 
 			// Checkpoint
-			int position = parser.CurrentPosition();
+			int position = parser.CurrentPosition ();
 
 			// Ignore Sequence - PublicKeyInfo
-			length = parser.NextSequence();
-			if (length != parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Sequence Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length != parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Sequence Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - AlgorithmIdentifier
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect AlgorithmIdentifier Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect AlgorithmIdentifier Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 			// Grab the OID
-			value = parser.NextOID();
+			value = parser.NextOID ();
 			byte[] oid = { 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01 };
-			if (!EqualOid(value, oid))
-			{ throw new BerDecodeException("Expected OID 1.2.840.113549.1.1.1", position); }
+			if (!EqualOid (value, oid)) {
+				throw new BerDecodeException ("Expected OID 1.2.840.113549.1.1.1", position);
+			}
 
 			// Optional Parameters
-			if (parser.IsNextNull())
-			{
-				parser.NextNull();
+			if (parser.IsNextNull ()) {
+				parser.NextNull ();
 				// Also OK: value = parser.Next();
-			}
-			else
-			{
+			} else {
 				// Gracefully skip the optional data
-				value = parser.Next();
+				value = parser.Next ();
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore BitString - PublicKey
-			length = parser.NextBitString();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect PublicKey Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                (parser.RemainingBytes()).ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextBitString ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect PublicKey Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					(parser.RemainingBytes ()).ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - RSAPublicKey
-			length = parser.NextSequence();
-			if (length < parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect RSAPublicKey Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length < parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect RSAPublicKey Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
-			parameters.Modulus = TrimLeadingZero(parser.NextInteger());
-			parameters.Exponent = TrimLeadingZero(parser.NextInteger());
+			parameters.Modulus = TrimLeadingZero (parser.NextInteger ());
+			parameters.Exponent = TrimLeadingZero (parser.NextInteger ());
 
-			Debug.Assert(0 == parser.RemainingBytes());
+			Debug.Assert (0 == parser.RemainingBytes ());
 
 			return parameters;
 		}
 
-		internal RSAParameters ParseRSAPrivateKey()
+		internal RSAParameters ParseRSAPrivateKey ()
 		{
-			RSAParameters parameters = new RSAParameters();
+			RSAParameters parameters = new RSAParameters ();
 
 			// Current value
 			byte[] value = null;
 
 			// Checkpoint
-			int position = parser.CurrentPosition();
+			int position = parser.CurrentPosition ();
 
 			// Sanity Check
 			int length = 0;
 
 			// Ignore Sequence - PrivateKeyInfo
-			length = parser.NextSequence();
-			if (length != parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Sequence Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length != parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Sequence Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 			// Version
-			value = parser.NextInteger();
-			if (0x00 != value[0])
-			{
-				StringBuilder sb = new StringBuilder("Incorrect PrivateKeyInfo Version. ");
-				BigInteger v = new BigInteger(value);
-				sb.AppendFormat("Expected: 0, Specified: {0}", v.ToString(10));
-				throw new BerDecodeException(sb.ToString(), position);
+			value = parser.NextInteger ();
+			if (0x00 != value [0]) {
+				StringBuilder sb = new StringBuilder ("Incorrect PrivateKeyInfo Version. ");
+				BigInteger v = new BigInteger (value);
+				sb.AppendFormat ("Expected: 0, Specified: {0}", v.ToString (10));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - AlgorithmIdentifier
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect AlgorithmIdentifier Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect AlgorithmIdentifier Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Grab the OID
-			value = parser.NextOID();
+			value = parser.NextOID ();
 			byte[] oid = { 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01 };
-			if (!EqualOid(value, oid))
-			{ throw new BerDecodeException("Expected OID 1.2.840.113549.1.1.1", position); }
+			if (!EqualOid (value, oid)) {
+				throw new BerDecodeException ("Expected OID 1.2.840.113549.1.1.1", position);
+			}
 
 			// Optional Parameters
-			if (parser.IsNextNull())
-			{
-				parser.NextNull();
+			if (parser.IsNextNull ()) {
+				parser.NextNull ();
 				// Also OK: value = parser.Next();
-			}
-			else
-			{
+			} else {
 				// Gracefully skip the optional data
-				value = parser.Next();
+				value = parser.Next ();
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore OctetString - PrivateKey
-			length = parser.NextOctetString();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect PrivateKey Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextOctetString ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect PrivateKey Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - RSAPrivateKey
-			length = parser.NextSequence();
-			if (length < parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect RSAPrivateKey Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture),
-				                parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length < parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect RSAPrivateKey Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture),
+					parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 			// Version
-			value = parser.NextInteger();
-			if (0x00 != value[0])
-			{
-				StringBuilder sb = new StringBuilder("Incorrect RSAPrivateKey Version. ");
-				BigInteger v = new BigInteger(value);
-				sb.AppendFormat("Expected: 0, Specified: {0}", v.ToString(10));
-				throw new BerDecodeException(sb.ToString(), position);
+			value = parser.NextInteger ();
+			if (0x00 != value [0]) {
+				StringBuilder sb = new StringBuilder ("Incorrect RSAPrivateKey Version. ");
+				BigInteger v = new BigInteger (value);
+				sb.AppendFormat ("Expected: 0, Specified: {0}", v.ToString (10));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
-			parameters.Modulus = TrimLeadingZero(parser.NextInteger());
-			parameters.Exponent = TrimLeadingZero(parser.NextInteger());
-			parameters.D = TrimLeadingZero(parser.NextInteger());
-			parameters.P = TrimLeadingZero(parser.NextInteger());
-			parameters.Q = TrimLeadingZero(parser.NextInteger());
-			parameters.DP = TrimLeadingZero(parser.NextInteger());
-			parameters.DQ = TrimLeadingZero(parser.NextInteger());
-			parameters.InverseQ = TrimLeadingZero(parser.NextInteger());
+			parameters.Modulus = TrimLeadingZero (parser.NextInteger ());
+			parameters.Exponent = TrimLeadingZero (parser.NextInteger ());
+			parameters.D = TrimLeadingZero (parser.NextInteger ());
+			parameters.P = TrimLeadingZero (parser.NextInteger ());
+			parameters.Q = TrimLeadingZero (parser.NextInteger ());
+			parameters.DP = TrimLeadingZero (parser.NextInteger ());
+			parameters.DQ = TrimLeadingZero (parser.NextInteger ());
+			parameters.InverseQ = TrimLeadingZero (parser.NextInteger ());
 
-			Debug.Assert(0 == parser.RemainingBytes());
+			Debug.Assert (0 == parser.RemainingBytes ());
 
 			return parameters;
 		}
 
-		internal DSAParameters ParseDSAPublicKey()
+		internal DSAParameters ParseDSAPublicKey ()
 		{
-			DSAParameters parameters = new DSAParameters();
+			DSAParameters parameters = new DSAParameters ();
 
 			// Current value
 			byte[] value = null;
 
 			// Current Position
-			int position = parser.CurrentPosition();
+			int position = parser.CurrentPosition ();
 			// Sanity Checks
 			int length = 0;
 
 			// Ignore Sequence - PublicKeyInfo
-			length = parser.NextSequence();
-			if (length != parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Sequence Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length != parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Sequence Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - AlgorithmIdentifier
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect AlgorithmIdentifier Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect AlgorithmIdentifier Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Grab the OID
-			value = parser.NextOID();
+			value = parser.NextOID ();
 			byte[] oid = { 0x2a, 0x86, 0x48, 0xce, 0x38, 0x04, 0x01 };
-			if (!EqualOid(value, oid))
-			{ throw new BerDecodeException("Expected OID 1.2.840.10040.4.1", position); }
+			if (!EqualOid (value, oid)) {
+				throw new BerDecodeException ("Expected OID 1.2.840.10040.4.1", position);
+			}
 
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - DSS-Params
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect DSS-Params Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect DSS-Params Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Next three are curve parameters
-			parameters.P = TrimLeadingZero(parser.NextInteger());
-			parameters.Q = TrimLeadingZero(parser.NextInteger());
-			parameters.G = TrimLeadingZero(parser.NextInteger());
+			parameters.P = TrimLeadingZero (parser.NextInteger ());
+			parameters.Q = TrimLeadingZero (parser.NextInteger ());
+			parameters.G = TrimLeadingZero (parser.NextInteger ());
 
 			// Ignore BitString - PrivateKey
-			parser.NextBitString();
+			parser.NextBitString ();
 
 			// Public Key
-			parameters.Y = TrimLeadingZero(parser.NextInteger());
+			parameters.Y = TrimLeadingZero (parser.NextInteger ());
 
-			Debug.Assert(0 == parser.RemainingBytes());
+			Debug.Assert (0 == parser.RemainingBytes ());
 
 			return parameters;
 		}
 
-		internal DSAParameters ParseDSAPrivateKey()
+		internal DSAParameters ParseDSAPrivateKey ()
 		{
-			DSAParameters parameters = new DSAParameters();
+			DSAParameters parameters = new DSAParameters ();
 
 			// Current value
 			byte[] value = null;
 
 			// Current Position
-			int position = parser.CurrentPosition();
+			int position = parser.CurrentPosition ();
 			// Sanity Checks
 			int length = 0;
 
 			// Ignore Sequence - PrivateKeyInfo
-			length = parser.NextSequence();
-			if (length != parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Sequence Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length != parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Sequence Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 			// Version
-			value = parser.NextInteger();
-			if (0x00 != value[0])
-			{
-				throw new BerDecodeException("Incorrect PrivateKeyInfo Version", position);
+			value = parser.NextInteger ();
+			if (0x00 != value [0]) {
+				throw new BerDecodeException ("Incorrect PrivateKeyInfo Version", position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - AlgorithmIdentifier
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect AlgorithmIdentifier Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect AlgorithmIdentifier Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 			// Grab the OID
-			value = parser.NextOID();
+			value = parser.NextOID ();
 			byte[] oid = { 0x2a, 0x86, 0x48, 0xce, 0x38, 0x04, 0x01 };
-			if (!EqualOid(value, oid))
-			{ throw new BerDecodeException("Expected OID 1.2.840.10040.4.1", position); }
+			if (!EqualOid (value, oid)) {
+				throw new BerDecodeException ("Expected OID 1.2.840.10040.4.1", position);
+			}
 
 			// Checkpoint
-			position = parser.CurrentPosition();
+			position = parser.CurrentPosition ();
 
 			// Ignore Sequence - DSS-Params
-			length = parser.NextSequence();
-			if (length > parser.RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect DSS-Params Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                length.ToString(CultureInfo.InvariantCulture), parser.RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			length = parser.NextSequence ();
+			if (length > parser.RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect DSS-Params Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					length.ToString (CultureInfo.InvariantCulture), parser.RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			// Next three are curve parameters
-			parameters.P = TrimLeadingZero(parser.NextInteger());
-			parameters.Q = TrimLeadingZero(parser.NextInteger());
-			parameters.G = TrimLeadingZero(parser.NextInteger());
+			parameters.P = TrimLeadingZero (parser.NextInteger ());
+			parameters.Q = TrimLeadingZero (parser.NextInteger ());
+			parameters.G = TrimLeadingZero (parser.NextInteger ());
 
 			// Ignore OctetString - PrivateKey
-			parser.NextOctetString();
+			parser.NextOctetString ();
 
 			// Private Key
-			parameters.X = TrimLeadingZero(parser.NextInteger());
+			parameters.X = TrimLeadingZero (parser.NextInteger ());
 
-			Debug.Assert(0 == parser.RemainingBytes());
+			Debug.Assert (0 == parser.RemainingBytes ());
 
 			return parameters;
 		}
@@ -2015,349 +1885,319 @@ namespace Net
 		private List<byte> octets;
 		private int initialCount;
 
-		public AsnParser(byte[] values)
+		public AsnParser (byte[] values)
 		{
-			octets = new List<byte>(values.Length);
-			octets.AddRange(values);
+			octets = new List<byte> (values.Length);
+			octets.AddRange (values);
 
 			initialCount = octets.Count;
 		}
 
-		internal int CurrentPosition()
+		internal int CurrentPosition ()
 		{
 			return initialCount - octets.Count;
 		}
 
-		internal int RemainingBytes()
+		internal int RemainingBytes ()
 		{
 			return octets.Count;
 		}
 
-		private int GetLength()
+		private int GetLength ()
 		{
 			int length = 0;
 
 			// Checkpoint
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
+			try {
+				byte b = GetNextOctet ();
 
-				if (b == (b & 0x7f)) { return b; }
+				if (b == (b & 0x7f)) {
+					return b;
+				}
 				int i = b & 0x7f;
 
-				if (i > 4)
-				{
-					StringBuilder sb = new StringBuilder("Invalid Length Encoding. ");
-					sb.AppendFormat("Length uses {0} octets",
-					                i.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				if (i > 4) {
+					StringBuilder sb = new StringBuilder ("Invalid Length Encoding. ");
+					sb.AppendFormat ("Length uses {0} octets",
+						i.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				while (0 != i--)
-				{
+				while (0 != i--) {
 					// shift left
 					length <<= 8;
 
-					length |= GetNextOctet();
+					length |= GetNextOctet ();
 				}
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 
 			return length;
 		}
 
-		internal byte[] Next()
+		internal byte[] Next ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				/*byte b = */GetNextOctet();
+			try {
+				/*byte b = */
+				GetNextOctet ();
 
-				int length = GetLength();
-				if (length > RemainingBytes())
-				{
-					StringBuilder sb = new StringBuilder("Incorrect Size. ");
-					sb.AppendFormat("Specified: {0}, Remaining: {1}",
-					                length.ToString(CultureInfo.InvariantCulture),
-					                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				int length = GetLength ();
+				if (length > RemainingBytes ()) {
+					StringBuilder sb = new StringBuilder ("Incorrect Size. ");
+					sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+						length.ToString (CultureInfo.InvariantCulture),
+						RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				return GetOctets(length);
+				return GetOctets (length);
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal byte GetNextOctet()
+		internal byte GetNextOctet ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			if (0 == RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                1.ToString(CultureInfo.InvariantCulture),
-				                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			if (0 == RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					1.ToString (CultureInfo.InvariantCulture),
+					RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
-			byte b = GetOctets(1)[0];
+			byte b = GetOctets (1) [0];
 
 			return b;
 		}
 
-		internal byte[] GetOctets(int octetCount)
+		internal byte[] GetOctets (int octetCount)
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			if (octetCount > RemainingBytes())
-			{
-				StringBuilder sb = new StringBuilder("Incorrect Size. ");
-				sb.AppendFormat("Specified: {0}, Remaining: {1}",
-				                octetCount.ToString(CultureInfo.InvariantCulture),
-				                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-				throw new BerDecodeException(sb.ToString(), position);
+			if (octetCount > RemainingBytes ()) {
+				StringBuilder sb = new StringBuilder ("Incorrect Size. ");
+				sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+					octetCount.ToString (CultureInfo.InvariantCulture),
+					RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+				throw new BerDecodeException (sb.ToString (), position);
 			}
 
 			byte[] values = new byte[octetCount];
 
-			try
-			{
-				octets.CopyTo(0, values, 0, octetCount);
-				octets.RemoveRange(0, octetCount);
+			try {
+				octets.CopyTo (0, values, 0, octetCount);
+				octets.RemoveRange (0, octetCount);
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 
 			return values;
 		}
 
-		internal bool IsNextNull()
+		internal bool IsNextNull ()
 		{
-			return 0x05 == octets[0];
+			return 0x05 == octets [0];
 		}
 
-		internal int NextNull()
+		internal int NextNull ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x05 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Null. ");
-					sb.AppendFormat("Specified Identifier: {0}", b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x05 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Null. ");
+					sb.AppendFormat ("Specified Identifier: {0}", b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
 				// Next octet must be 0
-				b = GetNextOctet();
-				if (0x00 != b)
-				{
-					StringBuilder sb = new StringBuilder("Null has non-zero size. ");
-					sb.AppendFormat("Size: {0}", b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				b = GetNextOctet ();
+				if (0x00 != b) {
+					StringBuilder sb = new StringBuilder ("Null has non-zero size. ");
+					sb.AppendFormat ("Size: {0}", b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
 				return 0;
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal bool IsNextSequence()
+		internal bool IsNextSequence ()
 		{
-			return 0x30 == octets[0];
+			return 0x30 == octets [0];
 		}
 
-		internal int NextSequence()
+		internal int NextSequence ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x30 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Sequence. ");
-					sb.AppendFormat("Specified Identifier: {0}",
-					                b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x30 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Sequence. ");
+					sb.AppendFormat ("Specified Identifier: {0}",
+						b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				int length = GetLength();
-				if (length > RemainingBytes())
-				{
-					StringBuilder sb = new StringBuilder("Incorrect Sequence Size. ");
-					sb.AppendFormat("Specified: {0}, Remaining: {1}",
-					                length.ToString(CultureInfo.InvariantCulture),
-					                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				int length = GetLength ();
+				if (length > RemainingBytes ()) {
+					StringBuilder sb = new StringBuilder ("Incorrect Sequence Size. ");
+					sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+						length.ToString (CultureInfo.InvariantCulture),
+						RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
 				return length;
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal bool IsNextOctetString()
+		internal bool IsNextOctetString ()
 		{
-			return 0x04 == octets[0];
+			return 0x04 == octets [0];
 		}
 
-		internal int NextOctetString()
+		internal int NextOctetString ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x04 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Octet String. ");
-					sb.AppendFormat("Specified Identifier: {0}", b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x04 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Octet String. ");
+					sb.AppendFormat ("Specified Identifier: {0}", b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				int length = GetLength();
-				if (length > RemainingBytes())
-				{
-					StringBuilder sb = new StringBuilder("Incorrect Octet String Size. ");
-					sb.AppendFormat("Specified: {0}, Remaining: {1}",
-					                length.ToString(CultureInfo.InvariantCulture),
-					                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				int length = GetLength ();
+				if (length > RemainingBytes ()) {
+					StringBuilder sb = new StringBuilder ("Incorrect Octet String Size. ");
+					sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+						length.ToString (CultureInfo.InvariantCulture),
+						RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
 				return length;
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal bool IsNextBitString()
+		internal bool IsNextBitString ()
 		{
-			return 0x03 == octets[0];
+			return 0x03 == octets [0];
 		}
 
-		internal int NextBitString()
+		internal int NextBitString ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x03 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Bit String. ");
-					sb.AppendFormat("Specified Identifier: {0}", b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x03 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Bit String. ");
+					sb.AppendFormat ("Specified Identifier: {0}", b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				int length = GetLength();
+				int length = GetLength ();
 
 				// We need to consume unused bits, which is the first
 				//   octet of the remaing values
-				b = octets[0];
-				octets.RemoveAt(0);
+				b = octets [0];
+				octets.RemoveAt (0);
 				length--;
 
-				if (0x00 != b)
-				{ throw new BerDecodeException("The first octet of BitString must be 0", position); }
+				if (0x00 != b) {
+					throw new BerDecodeException ("The first octet of BitString must be 0", position);
+				}
 
 				return length;
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal bool IsNextInteger()
+		internal bool IsNextInteger ()
 		{
-			return 0x02 == octets[0];
+			return 0x02 == octets [0];
 		}
 
-		internal byte[] NextInteger()
+		internal byte[] NextInteger ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x02 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Integer. ");
-					sb.AppendFormat("Specified Identifier: {0}", b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x02 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Integer. ");
+					sb.AppendFormat ("Specified Identifier: {0}", b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				int length = GetLength();
-				if (length > RemainingBytes())
-				{
-					StringBuilder sb = new StringBuilder("Incorrect Integer Size. ");
-					sb.AppendFormat("Specified: {0}, Remaining: {1}",
-					                length.ToString(CultureInfo.InvariantCulture),
-					                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				int length = GetLength ();
+				if (length > RemainingBytes ()) {
+					StringBuilder sb = new StringBuilder ("Incorrect Integer Size. ");
+					sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+						length.ToString (CultureInfo.InvariantCulture),
+						RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				return GetOctets(length);
+				return GetOctets (length);
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 
-		internal byte[] NextOID()
+		internal byte[] NextOID ()
 		{
-			int position = CurrentPosition();
+			int position = CurrentPosition ();
 
-			try
-			{
-				byte b = GetNextOctet();
-				if (0x06 != b)
-				{
-					StringBuilder sb = new StringBuilder("Expected Object Identifier. ");
-					sb.AppendFormat("Specified Identifier: {0}",
-					                b.ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+			try {
+				byte b = GetNextOctet ();
+				if (0x06 != b) {
+					StringBuilder sb = new StringBuilder ("Expected Object Identifier. ");
+					sb.AppendFormat ("Specified Identifier: {0}",
+						b.ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
-				int length = GetLength();
-				if (length > RemainingBytes())
-				{
-					StringBuilder sb = new StringBuilder("Incorrect Object Identifier Size. ");
-					sb.AppendFormat("Specified: {0}, Remaining: {1}",
-					                length.ToString(CultureInfo.InvariantCulture),
-					                RemainingBytes().ToString(CultureInfo.InvariantCulture));
-					throw new BerDecodeException(sb.ToString(), position);
+				int length = GetLength ();
+				if (length > RemainingBytes ()) {
+					StringBuilder sb = new StringBuilder ("Incorrect Object Identifier Size. ");
+					sb.AppendFormat ("Specified: {0}, Remaining: {1}",
+						length.ToString (CultureInfo.InvariantCulture),
+						RemainingBytes ().ToString (CultureInfo.InvariantCulture));
+					throw new BerDecodeException (sb.ToString (), position);
 				}
 
 				byte[] values = new byte[length];
 
-				for (int i = 0; i < length; i++)
-				{
-					values[i] = octets[0];
-					octets.RemoveAt(0);
+				for (int i = 0; i < length; i++) {
+					values [i] = octets [0];
+					octets.RemoveAt (0);
 				}
 
 				return values;
+			} catch (ArgumentOutOfRangeException ex) {
+				throw new BerDecodeException ("Error Parsing Key", position, ex);
 			}
-
-			catch (ArgumentOutOfRangeException ex)
-			{ throw new BerDecodeException("Error Parsing Key", position, ex); }
 		}
 	}
 
@@ -2365,46 +2205,59 @@ namespace Net
 	public sealed class BerDecodeException : Exception, ISerializable
 	{
 		private int m_position;
+
 		public int Position
 		{ get { return m_position; } }
 
-		public override string Message
-		{
-			get
-			{
-				StringBuilder sb = new StringBuilder(base.Message);
+		public override string Message {
+			get {
+				StringBuilder sb = new StringBuilder (base.Message);
 
-				sb.AppendFormat(" (Position {0}){1}",
-				                m_position, Environment.NewLine);
+				sb.AppendFormat (" (Position {0}){1}",
+					m_position, Environment.NewLine);
 
-				return sb.ToString();
+				return sb.ToString ();
 			}
 		}
 
-		public BerDecodeException()
-			: base() { }
-
-		public BerDecodeException(String message)
-			: base(message) { }
-
-		public BerDecodeException(String message, Exception ex)
-			: base(message, ex) { }
-
-		public BerDecodeException(String message, int position)
-			: base(message) { m_position = position; }
-
-		public BerDecodeException(String message, int position, Exception ex)
-			: base(message, ex) { m_position = position; }
-
-		private BerDecodeException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{ m_position = info.GetInt32("Position"); }
-
-		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		public BerDecodeException ()
+			: base ()
 		{
-			base.GetObjectData(info, context);
-			info.AddValue("Position", m_position);
+		}
+
+		public BerDecodeException (String message)
+			: base (message)
+		{
+		}
+
+		public BerDecodeException (String message, Exception ex)
+			: base (message, ex)
+		{
+		}
+
+		public BerDecodeException (String message, int position)
+			: base (message)
+		{
+			m_position = position;
+		}
+
+		public BerDecodeException (String message, int position, Exception ex)
+			: base (message, ex)
+		{
+			m_position = position;
+		}
+
+		private BerDecodeException (SerializationInfo info, StreamingContext context)
+			: base (info, context)
+		{
+			m_position = info.GetInt32 ("Position");
+		}
+
+		[SecurityPermission (SecurityAction.Demand, SerializationFormatter = true)]
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData (info, context);
+			info.AddValue ("Position", m_position);
 		}
 	}
 }

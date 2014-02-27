@@ -20,59 +20,62 @@
 
 namespace XMC
 {
-    using System;
+	using System;
 
-    public class PickupEntity : Entity
-    {
-        #region Fields
+	public class PickupEntity : Entity
+	{
+		#region Fields
 
-        public InventoryItem Item;
+		public InventoryItem Item;
 
-        #endregion Fields
+		#endregion Fields
 
-        #region Constructors
+		#region Constructors
 
-        public PickupEntity(int x, int y, int z, InventoryItem item)
-        {
-            X = x + .5; Y = y + .5; Z = z + .5;
-            Item = item;
-            base.Update();
-        }
+		public PickupEntity (int x, int y, int z, InventoryItem item)
+		{
+			X = x + .5;
+			Y = y + .5;
+			Z = z + .5;
+			Item = item;
+			base.Update ();
+		}
 
-        #endregion Constructors
+		#endregion Constructors
 
-        #region Methods
+		#region Methods
 
-        public override void Despawn()
-        {
-            base.Despawn();
-        }
+		public override void Despawn ()
+		{
+			base.Despawn ();
+		}
 
-        public override string ToString()
-        {
-            return "[Entity.Pickup " + EntityID + ": " + Item + "]";
-        }
+		public override string ToString ()
+		{
+			return "[Entity.Pickup " + EntityID + ": " + Item + "]";
+		}
 
-        public override void Update()
-        {
-            Pair<int, int> pos = CurrentChunk.GetChunkPos(X, Z);
-            if (CurrentChunk.GetBlock(pos.First, (int)(Y - 0.25), pos.Second) == Block.Air) {
-                Y -= 0.2;
-            }
-            base.Update();
-            foreach (Player p in XMC.Server.PlayerList) {
-                if (Math.Abs(p.X - X) < 1 && Math.Abs(p.Z - Z) < 1 && Y <= p.Y + 2 && Y >= p.Y) {
-                    if (p.Inventory.AddItem(Item)) {
-                        foreach (Player p2 in XMC.Server.PlayerList) {
-                            if (p2.VisibleEntities.Contains(this)) p2.PickupCollected(this, p);
-                        }
-                        Despawn();
-                        break;
-                    }
-                }
-            }
-        }
+		public override void Update ()
+		{
+			Pair<int, int> pos = CurrentChunk.GetChunkPos (X, Z);
+			if (CurrentChunk.GetBlock (pos.First, (int)(Y - 0.25), pos.Second) == Block.Air) {
+				Y -= 0.2;
+			}
+			base.Update ();
+			foreach (Player p in XMC.Server.PlayerList) {
+				if (Math.Abs (p.X - X) < 1 && Math.Abs (p.Z - Z) < 1 && Y <= p.Y + 2 && Y >= p.Y) {
+					if (p.Inventory.AddItem (Item)) {
+						foreach (Player p2 in XMC.Server.PlayerList) {
+							if (p2.VisibleEntities.Contains (this))
+								p2.PickupCollected (this, p);
+						}
+						Despawn ();
+						break;
+					}
+				}
+			}
+		}
 
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

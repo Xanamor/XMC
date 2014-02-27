@@ -20,15 +20,28 @@
 
 namespace XMC
 {
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 
-    public static class BlockYeild
-    {
-        #region Fields
+	public static class BlockYeild
+	{
+		#region Fields
 
-        public static short[] YieldsItemList = new short[]{ 1,2,14,15,16,21,56,73,74,78,79,80 };
+		public static short[] YieldsItemList = new short[] {
+			1,
+			2,
+			14,
+			15,
+			16,
+			21,
+			56,
+			73,
+			74,
+			78,
+			79,
+			80
+		};
 
-        #endregion Fields
-    }
+		#endregion Fields
+	}
 }

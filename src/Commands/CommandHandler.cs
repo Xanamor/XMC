@@ -20,174 +20,151 @@
 
 namespace XMC
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
 
-    public class CommandHandler
-    {
-        #region Fields
+	public class CommandHandler
+	{
+		#region Fields
 
-        public Rank AccessRights;
-        public string Command;
-        public int CommandLength;
-        public InventoryItem Item;
-        public Player Target = null;
-        public Player User;
+		public Rank AccessRights;
+		public string Command;
+		public int CommandLength;
+		public InventoryItem Item;
+		public Player Target = null;
+		public Player User;
+		private short BlockID;
+		private byte Count;
 
-        private short BlockID;
-        private byte Count;
+		#endregion Fields
 
-        #endregion Fields
+		#region Constructors
 
-        #region Constructors
+		public CommandHandler (Rank accessRights, Player p)
+		{
+			this.AccessRights = accessRights;
+			this.User = p;
+		}
 
-        public CommandHandler(Rank accessRights, Player p)
-        {
-            this.AccessRights = accessRights;
-            this.User = p;
-        }
+		#endregion Constructors
 
-        #endregion Constructors
+		#region Methods
 
-        #region Methods
+		public object GetPlayerObject (string Username)
+		{
+			Player Target = XMC.Server.PlayerList.Find (delegate(Player p) {
+				return p.Username == Username;
+			});
+			return Target;
+		}
 
-        public object GetPlayerObject(string Username)
-        {
-            Player Target = XMC.Server.PlayerList.Find(delegate(Player p) { return p.Username == Username; });
-                return Target;
-        }
+		public void Handle (string[] command)
+		{
+			Command = command [0];
+			CommandLength = command.Length;
+			try {
 
-        public void Handle(string[] command)
-        {
-            Command = command[0];
-            CommandLength = command.Length;
-            try
-            {
+				switch (Command.ToLower ()) {
+				case "/help":
+					User.RecvServerMessage ("The following commands are availible to you:");
+					User.RecvServerMessage ("<> = optional :: [] = required field");
+					User.RecvServerMessage ("/tp    -- teleport to a user IE: /tp [username]");
+					User.RecvServerMessage ("/ban   -- ban a user; defaults to 30 mins IE: /ban [user] <time>");
+					User.RecvServerMessage ("/ipban -- ban a user by ip; defaults to 30 mins IE: /ipban [ip] <time>");
+					User.RecvServerMessage ("/kick  -- Disconect a user IE: /kick [username]");
+					User.RecvServerMessage ("/give  -- Gives you a item IE: /item [ID] [Amount]");
+					User.RecvServerMessage ("/whois -- returns player information");
+					break;
+				case "/ban":
+					if (RankInfo.IsOperator (User.AccessRights)) {
+						User.RecvServerMessage ("Not Implemented");
+					}
+					break;
+				case "/ipban":
+					if (RankInfo.IsAdmin (User.AccessRights)) {
+						User.RecvServerMessage ("Not Implemented");
+					}
+					break;
+				case "/kick":
+					if (RankInfo.IsJanitor (User.AccessRights)) {
+						if (command.Length == 2) {
+							User.RecvServerMessage ("Kicking " + command [1]);
+							Target = (Player)GetPlayerObject (command [1]);
+							Target.Disconnect ("You have been kicked by " + User.Username);
+						} else {
+							User.RecvServerMessage ("Wrong amount of arguments");
+						}
+					}
+					break;
+				case "/tp":
+					if (RankInfo.IsJanitor (User.AccessRights)) {
+						User.RecvServerMessage ("Teleporting to " + command [1]);
+					}
+					break;
 
-                switch (Command.ToLower())
-                {
-                    case "/help":
-                        User.RecvServerMessage("The following commands are availible to you:");
-                        User.RecvServerMessage("<> = optional :: [] = required field");
-                        User.RecvServerMessage("/tp    -- teleport to a user IE: /tp [username]");
-                        User.RecvServerMessage("/ban   -- ban a user; defaults to 30 mins IE: /ban [user] <time>");
-                        User.RecvServerMessage("/ipban -- ban a user by ip; defaults to 30 mins IE: /ipban [ip] <time>");
-                        User.RecvServerMessage("/kick  -- Disconect a user IE: /kick [username]");
-                        User.RecvServerMessage("/give  -- Gives you a item IE: /item [ID] [Amount]");
-                        User.RecvServerMessage("/whois -- returns player information");
-                        break;
-                    case "/ban":
-                        if (RankInfo.IsOperator(User.AccessRights))
-                        {
-                            User.RecvServerMessage("Not Implemented");
-                        }
-                        break;
-                    case "/ipban":
-                        if (RankInfo.IsAdmin(User.AccessRights))
-                        {
-                            User.RecvServerMessage("Not Implemented");
-                        }
-                        break;
-                    case "/kick":
-                        if (RankInfo.IsJanitor(User.AccessRights))
-                        {
-                            if (command.Length == 2)
-                            {
-                                User.RecvServerMessage("Kicking " + command[1]);
-                                Target = (Player)GetPlayerObject(command[1]);
-                                Target.Disconnect("You have been kicked by " + User.Username);
-                            }
-                            else
-                            {
-                                User.RecvServerMessage("Wrong amount of arguments");
-                            }
-                        }
-                        break;
-                    case "/tp":
-                        if (RankInfo.IsJanitor(User.AccessRights))
-                        {
-                            User.RecvServerMessage("Teleporting to " + command[1]);
-                        }
-                        break;
+				// UNDONE: Need to finish /give command
+				case "/give":
+					if (RankInfo.IsOperator (User.AccessRights)) {
+						if (command.Length == 2) {
+							if (command [1].ToLower () == "help") {
+								User.RecvServerMessage ("Showing Help for /item");
+								User.RecvServerMessage ("Usages:");
+								User.RecvServerMessage ("/item help");
+								User.RecvServerMessage ("/item [ID]");
+								User.RecvServerMessage ("/item [ID] [Count]");
+								User.RecvServerMessage ("/item [Username] [ID] [Count]");
+							} else {
+								BlockID = Convert.ToInt16 (command [1]);
+								Item = new InventoryItem (BlockID);
+								//If it is a Block, else it is a item
+								if (Convert.ToInt32 (command [1]) < 256) {
+									User.RecvServerMessage (((Block)BlockID).ToString () + " Added to inventory");
+								} else {
+									User.RecvServerMessage (((Item)BlockID).ToString () + " Added to inventory");
+								}
 
-                    // UNDONE: Need to finish /give command
-                    case "/give":
-                        if (RankInfo.IsOperator(User.AccessRights))
-                        {
-                            if (command.Length == 2)
-                            {
-                                if (command[1].ToLower() == "help")
-                                {
-                                    User.RecvServerMessage("Showing Help for /item");
-                                    User.RecvServerMessage("Usages:");
-                                    User.RecvServerMessage("/item help");
-                                    User.RecvServerMessage("/item [ID]");
-                                    User.RecvServerMessage("/item [ID] [Count]");
-                                    User.RecvServerMessage("/item [Username] [ID] [Count]");
-                                }
-                                else
-                                {
-                                    BlockID = Convert.ToInt16(command[1]);
-                                    Item = new InventoryItem(BlockID);
-                                    //If it is a Block, else it is a item
-                                    if (Convert.ToInt32(command[1]) < 256)
-                                    {
-                                        User.RecvServerMessage(((Block)BlockID).ToString() + " Added to inventory");
-                                    }
-                                    else
-                                    {
-                                        User.RecvServerMessage(((Item)BlockID).ToString() + " Added to inventory");
-                                    }
+								User.Inventory.AddItem (Item);
 
-                                    User.Inventory.AddItem(Item);
+							}
+						}
+						if (command.Length == 3) {
+							BlockID = Convert.ToInt16 (command [1]);
+							Count = Convert.ToByte (command [2]);
+							Item = new InventoryItem (BlockID, Count, 0);
+							//If it is a Block, else it is a item
+							if (Convert.ToInt32 (command [1]) < 256) {
+								//Holy shit its LISP....
+								User.RecvServerMessage (((Block)BlockID).ToString () + "x" + Count + " Added to inventory");
+							} else {
+								User.RecvServerMessage (((Item)BlockID).ToString () + "x" + Count + " Added to inventory");
+							}
+							User.Inventory.AddItem (Item);
+						}
+						if (command.Length == 4) {
 
-                                }
-                            }
-                            if (command.Length == 3)
-                            {
-                                BlockID = Convert.ToInt16(command[1]);
-                                Count = Convert.ToByte(command[2]);
-                                Item = new InventoryItem(BlockID,Count,0);
-                                //If it is a Block, else it is a item
-                                if (Convert.ToInt32(command[1]) < 256)
-                                {
-                                    //Holy shit its LISP....
-                                    User.RecvServerMessage(((Block)BlockID).ToString() + "x" + Count + " Added to inventory");
-                                }
-                                else
-                                {
-                                    User.RecvServerMessage(((Item)BlockID).ToString() + "x" + Count + " Added to inventory");
-                                }
-                                User.Inventory.AddItem(Item);
-                            }
-                            if (command.Length == 4)
-                            {
+						}
+					}
+					break;
+				case "/whois":
+					User.RecvServerMessage ("Not Implemented");
+					break;
+				case "/whoami":
+					User.RecvServerMessage ("You are " + User.Username + " who is a " + RankInfo.RankTitle (AccessRights) + Color.White + " with entity ID " + User.EntityID);
+					User.RecvServerMessage ("You are connected from " + User._Conn.IPString);
+					break;
+				default:
+					User.RecvServerMessage ("Type /help to see avalible commands for a Access level " +
+					AccessRights + " User");
+					break;
+				}
+			} catch (Exception) {
 
-                            }
-                        }
-                        break;
-                    case "/whois":
-                        User.RecvServerMessage("Not Implemented");
-                        break;
-                    case "/whoami":
-                        User.RecvServerMessage("You are " + User.Username + " who is a " + RankInfo.RankTitle(AccessRights) + Color.White + " with entity ID " + User.EntityID);
-                        User.RecvServerMessage("You are connected from " + User._Conn.IPString);
-                        break;
-                    default:
-                        User.RecvServerMessage("Type /help to see avalible commands for a Access level " +
-                            AccessRights + " User");
-                        break;
-                }
-            }
-            catch (Exception)
-            {
+				throw;
+			}
+		}
 
-                throw;
-            }
-        }
-
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

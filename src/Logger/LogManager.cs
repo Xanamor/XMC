@@ -20,52 +20,51 @@
 
 namespace XMC.Logger
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using Constants;
 
-    using Constants;
+	public static class LogManager
+	{
+		#region Fields
 
-    public static class LogManager
-    {
-        #region Fields
+		static LogWorker _logger = new LogWorker ();
 
-        static LogWorker _logger = new LogWorker();
+		#endregion Fields
 
-        #endregion Fields
+		#region Methods
 
-        #region Methods
+		public static void Dispose ()
+		{
+			_logger.Dispose ();
+		}
 
-        public static void Dispose()
-        {
-            _logger.Dispose();
-        }
+		public static void LogError (Exception ex)
+		{
+			//if (SSettings.LoggingEnabled)
+			_logger.LogError (ex);
+		}
 
-        public static void LogError(Exception ex)
-        {
-            //if (SSettings.LoggingEnabled)
-                _logger.LogError(ex);
-        }
+		public static void LogNotice (string str)
+		{
+			//if(SSettings.LoggingEnabled)
+			_logger.LogMessage (str);
+		}
 
-        public static void LogNotice(string str)
-        {
-            //if(SSettings.LoggingEnabled)
-                _logger.LogMessage(str);
-        }
+		public static void LogScriptMessage (string str)
+		{
+			//if (SSettings.LoggingEnabled)
+			_logger.LogScriptMessage (str);
+		}
 
-        public static void LogScriptMessage(string str)
-        {
-            //if (SSettings.LoggingEnabled)
-            _logger.LogScriptMessage(str);
-        }
+		public static void LogWarrning (string str)
+		{
+			//if (SSettings.LoggingEnabled)
+			_logger.LogWarrning (str);
+		}
 
-        public static void LogWarrning(string str)
-        {
-            //if (SSettings.LoggingEnabled)
-                _logger.LogWarrning(str);
-        }
-
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

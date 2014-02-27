@@ -20,87 +20,84 @@
 
 namespace XMC
 {
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 
-    #region Enumerations
+	#region Enumerations
+	public enum Rank
+	{
+		Banned = -1,
+		Guest,
+		Janitor,
+		Operator,
+		Admin
+	}
+	#endregion Enumerations
+	public static class RankInfo
+	{
+		#region Fields
 
-    public enum Rank
-    {
-        Banned = -1,
-        Guest,
-        Janitor,
-        Operator,
-        Admin
-    }
+		private static Dictionary<Rank, string> colors;
 
-    #endregion Enumerations
+		#endregion Fields
 
-    public static class RankInfo
-    {
-        #region Fields
+		#region Constructors
 
-        private static Dictionary<Rank, string> colors;
+		static RankInfo ()
+		{
+			colors = new Dictionary<Rank, string> ();
+			colors [Rank.Banned] = Color.Red;
+			colors [Rank.Guest] = Color.White;
+			colors [Rank.Janitor] = Color.Green;
+			colors [Rank.Operator] = Color.Yellow;
+			colors [Rank.Admin] = Color.Blue;
+		}
 
-        #endregion Fields
+		#endregion Constructors
 
-        #region Constructors
+		#region Methods
 
-        static RankInfo()
-        {
-            colors = new Dictionary<Rank, string>();
-            colors[Rank.Banned] = Color.Red;
-            colors[Rank.Guest] = Color.White;
-            colors[Rank.Janitor] = Color.Green;
-            colors[Rank.Operator] = Color.Yellow;
-            colors[Rank.Admin] = Color.Blue;
-        }
+		public static bool IsAdmin (Rank rank)
+		{
+			return (rank == Rank.Admin);
+		}
 
-        #endregion Constructors
+		public static bool IsJanitor (Rank rank)
+		{
+			return (rank >= Rank.Janitor);
+		}
 
-        #region Methods
+		public static bool IsOperator (Rank rank)
+		{
+			return (rank >= Rank.Operator);
+		}
 
-        public static bool IsAdmin(Rank rank)
-        {
-            return (rank == Rank.Admin);
-        }
+		public static string RankColor (Rank rank)
+		{
+			if (colors.ContainsKey (rank)) {
+				return colors [rank];
+			} else {
+				return Color.Black;
+			}
+		}
 
-        public static bool IsJanitor(Rank rank)
-        {
-            return (rank >= Rank.Janitor);
-        }
+		public static string RankTitle (Rank rank)
+		{
+			int TitleLevel = (int)rank;
 
-        public static bool IsOperator(Rank rank)
-        {
-            return (rank >= Rank.Operator);
-        }
+			if (TitleLevel == -1)
+				return Color.Red + "<Banned>";
+			if (TitleLevel == 0)
+				return Color.White + "<Guest>";
+			if (TitleLevel == 1)
+				return  Color.Green + "<Janitor>";
+			if (TitleLevel == 2)
+				return Color.Yellow + "<Operator>";
+			if (TitleLevel == 3)
+				return Color.Blue + "<Administrator>";
+			return "#RANK_NOT_FOUND#";
+		}
 
-        public static string RankColor(Rank rank)
-        {
-            if (colors.ContainsKey(rank)) {
-                return colors[rank];
-            } else {
-                return Color.Black;
-            }
-        }
-
-        public static string RankTitle(Rank rank)
-        {
-            int TitleLevel = (int)rank;
-
-            if (TitleLevel == -1)
-                return Color.Red + "<Banned>";
-            if (TitleLevel == 0)
-                return Color.White + "<Guest>";
-            if (TitleLevel == 1)
-                return  Color.Green + "<Janitor>";
-            if (TitleLevel == 2)
-                return Color.Yellow + "<Operator>";
-            if (TitleLevel == 3)
-                return Color.Blue + "<Administrator>";
-            return "#RANK_NOT_FOUND#";
-        }
-
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }

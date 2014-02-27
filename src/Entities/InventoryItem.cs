@@ -20,67 +20,67 @@
 
 namespace XMC
 {
-    using System;
+	using System;
 
-    public struct InventoryItem
-    {
-        #region Fields
+	public struct InventoryItem
+	{
+		#region Fields
 
-        public byte Count;
-        public short Damage;
-        public short Type;
+		public byte Count;
+		public short Damage;
+		public short Type;
 
-        #endregion Fields
+		#endregion Fields
 
-        #region Constructors
+		#region Constructors
 
-        public InventoryItem(short type, byte count, short damage)
-        {
-            Type = type;
-            Count = count;
-            Damage = damage;
-        }
+		public InventoryItem (short type, byte count, short damage)
+		{
+			Type = type;
+			Count = count;
+			Damage = damage;
+		}
 
-        public InventoryItem(short type, short damage)
-        {
-            Type = type;
-            Count = 1;
-            Damage = damage;
-        }
+		public InventoryItem (short type, short damage)
+		{
+			Type = type;
+			Count = 1;
+			Damage = damage;
+		}
 
-        public InventoryItem(short type)
-        {
-            Type = type;
-            Count = 1;
-            Damage = 0;
-        }
+		public InventoryItem (short type)
+		{
+			Type = type;
+			Count = 1;
+			Damage = 0;
+		}
 
-        #endregion Constructors
+		#endregion Constructors
 
-        #region Methods
+		#region Methods
 
-        public override string ToString()
-        {
-            string name = "[InvItem ";
-            if (Type == -1) {
-                name += "Nil";
-            } else if (Type < 256) {
-                name += "Block." + ((Block)Type).ToString();
-            } else {
-                name += "Item." + ((Item)Type).ToString();
-            }
-            if (Type > 0) {
-                if (Count != 1) {
-                    name += " x" + Count;
-                }
-                if (Damage != 0) {
-                    name += " d" + Damage;
-                }
-            }
-            name += "]";
-            return name;
-        }
+		public override string ToString ()
+		{
+			string name = "[InvItem ";
+			if (Type == -1) {
+				name += "Nil";
+			} else if (Type < 256) {
+				name += "Block." + ((Block)Type).ToString ();
+			} else {
+				name += "Item." + ((Item)Type).ToString ();
+			}
+			if (Type > 0) {
+				if (Count != 1) {
+					name += " x" + Count;
+				}
+				if (Damage != 0) {
+					name += " d" + Damage;
+				}
+			}
+			name += "]";
+			return name;
+		}
 
-        #endregion Methods
-    }
+		#endregion Methods
+	}
 }
